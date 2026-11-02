@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.DS_Store
+# data and databases never go into git (see docs/decisions.md D6)
+data/*
+results/*
+!data/.gitkeep
+!results/.gitkeep
+*.db
+*.db-wal
+*.db-shm

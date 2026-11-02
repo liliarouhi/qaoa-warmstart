@@ -1,0 +1,597 @@
+% references.bib — QAOA warm-start / Max-Cut / DVRP thesis
+% Verified 2026-11-02 against the Crossref API (api.crossref.org/works/<DOI>)
+% unless a "note-verify" comment says otherwise. arXiv-only items were checked on arxiv.org.
+% Fields not returned by Crossref (e.g. issue numbers) were left out rather than guessed.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 1. QAOA foundations and reviews
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@misc{farhi2014qaoa,
+  author        = {Farhi, Edward and Goldstone, Jeffrey and Gutmann, Sam},
+  title         = {A Quantum Approximate Optimization Algorithm},
+  year          = {2014},
+  eprint        = {1411.4028},
+  archivePrefix = {arXiv},
+  primaryClass  = {quant-ph}
+}
+% note-verify: arXiv only, no journal version listed on arxiv.org (checked).
+
+@article{zhou2020qaoa,
+  author  = {Zhou, Leo and Wang, Sheng-Tao and Choi, Soonwon and Pichler, Hannes and Lukin, Mikhail D.},
+  title   = {Quantum Approximate Optimization Algorithm: Performance, Mechanism, and Implementation on Near-Term Devices},
+  journal = {Physical Review X},
+  year    = {2020},
+  volume  = {10},
+  number  = {2},
+  pages   = {021067},
+  doi     = {10.1103/PhysRevX.10.021067}
+}
+
+@article{wang2018fermionic,
+  author  = {Wang, Zhihui and Hadfield, Stuart and Jiang, Zhang and Rieffel, Eleanor G.},
+  title   = {Quantum approximate optimization algorithm for {MaxCut}: A fermionic view},
+  journal = {Physical Review A},
+  year    = {2018},
+  volume  = {97},
+  pages   = {022304},
+  doi     = {10.1103/PhysRevA.97.022304}
+}
+
+@article{hadfield2019qaoansatz,
+  author  = {Hadfield, Stuart and Wang, Zhihui and O'Gorman, Bryan and Rieffel, Eleanor G. and Venturelli, Davide and Biswas, Rupak},
+  title   = {From the Quantum Approximate Optimization Algorithm to a Quantum Alternating Operator Ansatz},
+  journal = {Algorithms},
+  year    = {2019},
+  volume  = {12},
+  pages   = {34},
+  doi     = {10.3390/a12020034}
+}
+
+@article{blekos2024review,
+  author  = {Blekos, Kostas and Brand, Dean and Ceschini, Andrea and Chou, Chiao-Hui and Li, Rui-Hao and Pandya, Komal and Summer, Alessandro},
+  title   = {A review on Quantum Approximate Optimization Algorithm and its variants},
+  journal = {Physics Reports},
+  year    = {2024},
+  volume  = {1068},
+  pages   = {1--66},
+  doi     = {10.1016/j.physrep.2024.03.002}
+}
+
+@article{cerezo2021vqa,
+  author  = {Cerezo, M. and Arrasmith, Andrew and Babbush, Ryan and Benjamin, Simon C. and Endo, Suguru and Fujii, Keisuke and McClean, Jarrod R. and Mitarai, Kosuke and Yuan, Xiao and Cincio, Lukasz and Coles, Patrick J.},
+  title   = {Variational quantum algorithms},
+  journal = {Nature Reviews Physics},
+  year    = {2021},
+  volume  = {3},
+  pages   = {625--644},
+  doi     = {10.1038/s42254-021-00348-9}
+}
+
+@article{bharti2022nisq,
+  author  = {Bharti, Kishor and Cervera-Lierta, Alba and Kyaw, Thi Ha and others},
+  title   = {Noisy intermediate-scale quantum algorithms},
+  journal = {Reviews of Modern Physics},
+  year    = {2022},
+  volume  = {94},
+  pages   = {015004},
+  doi     = {10.1103/RevModPhys.94.015004}
+}
+% 14 authors in total; expand "others" from the publisher page before submission.
+
+@article{harrigan2021qaoa,
+  author  = {Harrigan, Matthew P. and Sung, Kevin J. and Neeley, Matthew and Satzinger, Kevin J. and Arute, Frank and others},
+  title   = {Quantum approximate optimization of non-planar graph problems on a planar superconducting processor},
+  journal = {Nature Physics},
+  year    = {2021},
+  volume  = {17},
+  pages   = {332--336},
+  doi     = {10.1038/s41567-020-01105-y}
+}
+
+@article{herrman2022maqaoa,
+  author  = {Herrman, Rebekah and Lotshaw, Phillip C. and Ostrowski, James and Humble, Travis S. and Siopsis, George},
+  title   = {Multi-angle quantum approximate optimization algorithm},
+  journal = {Scientific Reports},
+  year    = {2022},
+  volume  = {12},
+  pages   = {6781},
+  doi     = {10.1038/s41598-022-10555-8}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 2. Training difficulty, concentration, symmetries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@article{bittel2021nphard,
+  author  = {Bittel, Lennart and Kliesch, Martin},
+  title   = {Training Variational Quantum Algorithms Is {NP}-Hard},
+  journal = {Physical Review Letters},
+  year    = {2021},
+  volume  = {127},
+  pages   = {120502},
+  doi     = {10.1103/PhysRevLett.127.120502}
+}
+
+@article{mcclean2018barren,
+  author  = {McClean, Jarrod R. and Boixo, Sergio and Smelyanskiy, Vadim N. and Babbush, Ryan and Neven, Hartmut},
+  title   = {Barren plateaus in quantum neural network training landscapes},
+  journal = {Nature Communications},
+  year    = {2018},
+  volume  = {9},
+  pages   = {4812},
+  doi     = {10.1038/s41467-018-07090-4}
+}
+
+@misc{brandao2018concentration,
+  author        = {Brand{\~a}o, Fernando G. S. L. and Broughton, Michael and Farhi, Edward and Gutmann, Sam and Neven, Hartmut},
+  title         = {For Fixed Control Parameters the Quantum Approximate Optimization Algorithm's Objective Function Value Concentrates for Typical Instances},
+  year          = {2018},
+  eprint        = {1812.04170},
+  archivePrefix = {arXiv},
+  primaryClass  = {quant-ph}
+}
+% note-verify: arXiv only; no journal reference on arxiv.org (checked).
+
+@article{akshay2021concentration,
+  author  = {Akshay, V. and Rabinovich, D. and Campos, E. and Biamonte, J.},
+  title   = {Parameter concentrations in quantum approximate optimization},
+  journal = {Physical Review A},
+  year    = {2021},
+  volume  = {104},
+  pages   = {L010401},
+  doi     = {10.1103/PhysRevA.104.L010401}
+}
+
+@article{shaydulin2021symmetries,
+  author  = {Shaydulin, Ruslan and Hadfield, Stuart and Hogg, Tad and Safro, Ilya},
+  title   = {Classical symmetries and the Quantum Approximate Optimization Algorithm},
+  journal = {Quantum Information Processing},
+  year    = {2021},
+  volume  = {20},
+  pages   = {359},
+  doi     = {10.1007/s11128-021-03298-4}
+}
+
+@article{wurtz2021fixedangle,
+  author  = {Wurtz, Jonathan and Lykov, Danylo},
+  title   = {Fixed-angle conjectures for the quantum approximate optimization algorithm on regular {MaxCut} graphs},
+  journal = {Physical Review A},
+  year    = {2021},
+  volume  = {104},
+  pages   = {052419},
+  doi     = {10.1103/PhysRevA.104.052419}
+}
+
+@inproceedings{basso2022highdepth,
+  author    = {Basso, Joao and Farhi, Edward and Marwaha, Kunal and Villalonga, Benjamin and Zhou, Leo},
+  title     = {The Quantum Approximate Optimization Algorithm at High Depth for {MaxCut} on Large-Girth Regular Graphs and the {Sherrington-Kirkpatrick} Model},
+  booktitle = {17th Conference on the Theory of Quantum Computation, Communication and Cryptography (TQC 2022)},
+  series    = {LIPIcs},
+  year      = {2022},
+  doi       = {10.4230/LIPIcs.TQC.2022.7},
+  eprint    = {2110.14206},
+  archivePrefix = {arXiv}
+}
+% note-verify: DOI taken from the arXiv page (DataCite DOI, Crossref lookup failed). Add volume/pages from dagstuhl.de.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 3. Parameter initialisation: heuristics, warm-start, transfer, ML
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@article{egger2021warmstart,
+  author  = {Egger, Daniel J. and Mare{\v{c}}ek, Jakub and Woerner, Stefan},
+  title   = {Warm-starting quantum optimization},
+  journal = {Quantum},
+  year    = {2021},
+  volume  = {5},
+  pages   = {479},
+  doi     = {10.22331/q-2021-06-17-479}
+}
+
+@article{tate2023sdpwarm,
+  author  = {Tate, Reuben and Farhadi, Majid and Herold, Creston and Mohler, Greg and Gupta, Swati},
+  title   = {Bridging Classical and Quantum with {SDP} initialized warm-starts for {QAOA}},
+  journal = {ACM Transactions on Quantum Computing},
+  year    = {2023},
+  volume  = {4},
+  pages   = {1--39},
+  doi     = {10.1145/3549554}
+}
+
+@article{sack2021annealing,
+  author  = {Sack, Stefan H. and Serbyn, Maksym},
+  title   = {Quantum annealing initialization of the quantum approximate optimization algorithm},
+  journal = {Quantum},
+  year    = {2021},
+  volume  = {5},
+  pages   = {491},
+  doi     = {10.22331/q-2021-07-01-491}
+}
+
+@article{sack2023greedy,
+  author  = {Sack, Stefan H. and Medina, Raimel A. and Kueng, Richard and Serbyn, Maksym},
+  title   = {Recursive greedy initialization of the quantum approximate optimization algorithm with guaranteed improvement},
+  journal = {Physical Review A},
+  year    = {2023},
+  volume  = {107},
+  pages   = {062404},
+  doi     = {10.1103/PhysRevA.107.062404}
+}
+
+@inproceedings{alam2020ml,
+  author    = {Alam, Mahabubul and Ash-Saki, Abdullah and Ghosh, Swaroop},
+  title     = {Accelerating Quantum Approximate Optimization Algorithm using Machine Learning},
+  booktitle = {2020 Design, Automation \& Test in Europe Conference \& Exhibition (DATE)},
+  year      = {2020},
+  pages     = {686--689},
+  doi       = {10.23919/DATE48585.2020.9116348}
+}
+
+@inproceedings{galda2021transfer,
+  author    = {Galda, Alexey and Liu, Xiaoyuan and Lykov, Danylo and Alexeev, Yuri and Safro, Ilya},
+  title     = {Transferability of optimal {QAOA} parameters between random graphs},
+  booktitle = {2021 IEEE International Conference on Quantum Computing and Engineering (QCE)},
+  year      = {2021},
+  pages     = {171--180},
+  doi       = {10.1109/QCE52317.2021.00034}
+}
+
+@article{galda2023similarity,
+  author  = {Galda, Alexey and Gupta, Eesh and Falla, Jose and Liu, Xiaoyuan and Lykov, Danylo and Alexeev, Yuri and Safro, Ilya},
+  title   = {Similarity-based parameter transferability in the quantum approximate optimization algorithm},
+  journal = {Frontiers in Quantum Science and Technology},
+  year    = {2023},
+  volume  = {2},
+  pages   = {1200975},
+  doi     = {10.3389/frqst.2023.1200975}
+}
+
+@article{shaydulin2023weighted,
+  author  = {Shaydulin, Ruslan and Lotshaw, Phillip C. and Larson, Jeffrey and Ostrowski, James and Humble, Travis S.},
+  title   = {Parameter Transfer for Quantum Approximate Optimization of Weighted {MaxCut}},
+  journal = {ACM Transactions on Quantum Computing},
+  year    = {2023},
+  volume  = {4},
+  pages   = {1--15},
+  doi     = {10.1145/3584706}
+}
+
+@article{jain2022gnn,
+  author  = {Jain, Nishant and Coyle, Brian and Kashefi, Elham and Kumar, Niraj},
+  title   = {Graph neural network initialisation of quantum approximate optimisation},
+  journal = {Quantum},
+  year    = {2022},
+  volume  = {6},
+  pages   = {861},
+  doi     = {10.22331/q-2022-11-17-861}
+}
+
+@article{moussa2022unsupervised,
+  author  = {Moussa, Charles and Wang, Hao and B{\"a}ck, Thomas and Dunjko, Vedran},
+  title   = {Unsupervised strategies for identifying optimal parameters in Quantum Approximate Optimization Algorithm},
+  journal = {EPJ Quantum Technology},
+  year    = {2022},
+  volume  = {9},
+  pages   = {11},
+  doi     = {10.1140/epjqt/s40507-022-00131-4}
+}
+
+@article{falla2024graphrep,
+  author  = {Falla, Jose and Langfitt, Quinn and Alexeev, Yuri and Safro, Ilya},
+  title   = {Graph representation learning for parameter transferability in quantum approximate optimization algorithm},
+  journal = {Quantum Machine Intelligence},
+  year    = {2024},
+  volume  = {6},
+  pages   = {46},
+  doi     = {10.1007/s42484-024-00178-9}
+}
+% note-verify: volume/article no. read from link.springer.com (Crossref rate-limited); authors from Crossref search.
+
+@article{katial2025instance,
+  author  = {Katial, Vivek and Smith-Miles, Kate and Hill, Charles and Hollenberg, Lloyd},
+  title   = {On the Instance Dependence of Parameter Initialization for the Quantum Approximate Optimization Algorithm: Insights via Instance Space Analysis},
+  journal = {INFORMS Journal on Computing},
+  year    = {2025},
+  volume  = {37},
+  number  = {1},
+  pages   = {146--171},
+  doi     = {10.1287/ijoc.2024.0564}
+}
+
+@inproceedings{nguyen2025crossproblem,
+  author    = {Nguyen, Kien X. and Bach, Bao and Safro, Ilya},
+  title     = {Cross-Problem Parameter Transfer in Quantum Approximate Optimization Algorithm: a Machine Learning Approach},
+  booktitle = {2025 IEEE International Conference on Quantum Computing and Engineering (QCE)},
+  year      = {2025},
+  pages     = {2202--2208},
+  doi       = {10.1109/QCE65121.2025.00240}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 4. Max-Cut complexity and classical bounds
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@incollection{karp1972,
+  author    = {Karp, Richard M.},
+  title     = {Reducibility among Combinatorial Problems},
+  booktitle = {Complexity of Computer Computations},
+  year      = {1972},
+  pages     = {85--103},
+  doi       = {10.1007/978-1-4684-2001-2_9}
+}
+
+@article{goemans1995,
+  author  = {Goemans, Michel X. and Williamson, David P.},
+  title   = {Improved approximation algorithms for maximum cut and satisfiability problems using semidefinite programming},
+  journal = {Journal of the ACM},
+  year    = {1995},
+  volume  = {42},
+  pages   = {1115--1145},
+  doi     = {10.1145/227683.227684}
+}
+
+@article{hastad2001,
+  author  = {H{\aa}stad, Johan},
+  title   = {Some optimal inapproximability results},
+  journal = {Journal of the ACM},
+  year    = {2001},
+  volume  = {48},
+  pages   = {798--859},
+  doi     = {10.1145/502090.502098}
+}
+
+@article{khot2007,
+  author  = {Khot, Subhash and Kindler, Guy and Mossel, Elchanan and O'Donnell, Ryan},
+  title   = {Optimal Inapproximability Results for {MAX-CUT} and Other 2-Variable {CSPs}?},
+  journal = {SIAM Journal on Computing},
+  year    = {2007},
+  volume  = {37},
+  pages   = {319--357},
+  doi     = {10.1137/S0097539705447372}
+}
+
+@article{mohar1990,
+  author  = {Mohar, Bojan and Poljak, Svatopluk},
+  title   = {Eigenvalues and the max-cut problem},
+  journal = {Czechoslovak Mathematical Journal},
+  year    = {1990},
+  volume  = {40},
+  pages   = {343--352},
+  doi     = {10.21136/CMJ.1990.102386}
+}
+
+@article{lucas2014ising,
+  author  = {Lucas, Andrew},
+  title   = {Ising formulations of many {NP} problems},
+  journal = {Frontiers in Physics},
+  year    = {2014},
+  volume  = {2},
+  pages   = {5},
+  doi     = {10.3389/fphy.2014.00005}
+}
+
+@article{glover2019qubo,
+  author  = {Glover, Fred and Kochenberger, Gary and Du, Yu},
+  title   = {Quantum Bridge Analytics {I}: a tutorial on formulating and using {QUBO} models},
+  journal = {4OR},
+  year    = {2019},
+  volume  = {17},
+  pages   = {335--371},
+  doi     = {10.1007/s10288-019-00424-y}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 5. Vehicle routing (static, dynamic, cluster-first route-second)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@article{dantzig1959truck,
+  author  = {Dantzig, G. B. and Ramser, J. H.},
+  title   = {The Truck Dispatching Problem},
+  journal = {Management Science},
+  year    = {1959},
+  volume  = {6},
+  pages   = {80--91},
+  doi     = {10.1287/mnsc.6.1.80}
+}
+
+@article{gillett1974sweep,
+  author  = {Gillett, Billy E. and Miller, Leland R.},
+  title   = {A Heuristic Algorithm for the Vehicle-Dispatch Problem},
+  journal = {Operations Research},
+  year    = {1974},
+  volume  = {22},
+  pages   = {340--349},
+  doi     = {10.1287/opre.22.2.340}
+}
+
+@article{fisher1981gap,
+  author  = {Fisher, Marshall L. and Jaikumar, Ramchandran},
+  title   = {A generalized assignment heuristic for vehicle routing},
+  journal = {Networks},
+  year    = {1981},
+  volume  = {11},
+  pages   = {109--124},
+  doi     = {10.1002/net.3230110205}
+}
+
+@article{laporte2009fifty,
+  author  = {Laporte, Gilbert},
+  title   = {Fifty Years of Vehicle Routing},
+  journal = {Transportation Science},
+  year    = {2009},
+  volume  = {43},
+  pages   = {408--416},
+  doi     = {10.1287/trsc.1090.0301}
+}
+
+@book{toth2014vrp,
+  editor    = {Toth, Paolo and Vigo, Daniele},
+  title     = {Vehicle Routing: Problems, Methods, and Applications},
+  edition   = {2},
+  publisher = {Society for Industrial and Applied Mathematics},
+  year      = {2014},
+  doi       = {10.1137/1.9781611973594}
+}
+% Crossref title is just "Vehicle Routing"; subtitle/edition from memory, check on the SIAM page.
+
+@article{pillac2013dvrp,
+  author  = {Pillac, Victor and Gendreau, Michel and Gu{\'e}ret, Christelle and Medaglia, Andr{\'e}s L.},
+  title   = {A review of dynamic vehicle routing problems},
+  journal = {European Journal of Operational Research},
+  year    = {2013},
+  volume  = {225},
+  pages   = {1--11},
+  doi     = {10.1016/j.ejor.2012.08.015}
+}
+
+@article{psaraftis2016dvrp,
+  author  = {Psaraftis, Harilaos N. and Wen, Min and Kontovas, Christos A.},
+  title   = {Dynamic vehicle routing problems: Three decades and counting},
+  journal = {Networks},
+  year    = {2016},
+  volume  = {67},
+  pages   = {3--31},
+  doi     = {10.1002/net.21628}
+}
+% Crossref "issued" = 2015 (online first); volume 67 is the 2016 print issue.
+
+@article{ojedarios2021dvrp,
+  author  = {Ojeda Rios, Brenner Humberto and Xavier, Eduardo C. and Miyazawa, Fl{\'a}vio K. and Amorim, Pedro and Curcio, Eduardo and Santos, Maria Jo{\~a}o},
+  title   = {Recent dynamic vehicle routing problems: A survey},
+  journal = {Computers \& Industrial Engineering},
+  year    = {2021},
+  volume  = {160},
+  pages   = {107604},
+  doi     = {10.1016/j.cie.2021.107604}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 6. Quantum approaches to VRP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@article{feld2019cvrp,
+  author  = {Feld, Sebastian and Roch, Christoph and Gabor, Thomas and Seidel, Christian and Neukart, Florian and Galter, Isabella and Mauerer, Wolfgang and Linnhoff-Popien, Claudia},
+  title   = {A Hybrid Solution Method for the Capacitated Vehicle Routing Problem Using a Quantum Annealer},
+  journal = {Frontiers in ICT},
+  year    = {2019},
+  volume  = {6},
+  pages   = {13},
+  doi     = {10.3389/fict.2019.00013}
+}
+
+@article{azad2023vrpqaoa,
+  author  = {Azad, Utkarsh and Behera, Bikash K. and Ahmed, Emad A. and Panigrahi, Prasanta K. and Farouk, Ahmed},
+  title   = {Solving Vehicle Routing Problem Using Quantum Approximate Optimization Algorithm},
+  journal = {IEEE Transactions on Intelligent Transportation Systems},
+  year    = {2023},
+  volume  = {24},
+  number  = {7},
+  pages   = {7564--7573},
+  doi     = {10.1109/TITS.2022.3172241}
+}
+
+@article{rosendo2025vrpnisq,
+  author  = {Rosendo and Fortunato and Abreu},
+  title   = {Quantum Approaches for Vehicle Routing Optimization on Noisy Intermediate Scale Quantum Platforms: Applications of {QAOA} and Quantum Annealing for Vehicle Routing Problems},
+  journal = {IEEE Software},
+  year    = {2025},
+  volume  = {42},
+  number  = {5},
+  pages   = {43--50},
+  doi     = {10.1109/MS.2025.3547874}
+}
+% note-verify: only family names retrieved; add given names from IEEE Xplore.
+
+@article{azfar2026vrpramp,
+  author  = {Azfar and Ke},
+  title   = {Improving {QAOA} feasibility and hardware performance for vehicle routing via linear chain and ramp schedules},
+  journal = {Scientific Reports},
+  year    = {2026},
+  doi     = {10.1038/s41598-026-70696-y}
+}
+% note-verify: DOI and title confirmed in Crossref; volume/article number not yet assigned there; given names missing.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 7. Graph similarity, cache keys, indexing, databases, software
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+@article{shervashidze2011wl,
+  author  = {Shervashidze, Nino and Schweitzer, Pascal and van Leeuwen, Erik Jan and Mehlhorn, Kurt and Borgwardt, Karsten M.},
+  title   = {Weisfeiler-Lehman Graph Kernels},
+  journal = {Journal of Machine Learning Research},
+  year    = {2011},
+  volume  = {12},
+  number  = {77},
+  pages   = {2539--2561},
+  url     = {https://www.jmlr.org/papers/v12/shervashidze11a.html}
+}
+% JMLR has no DOIs; checked on jmlr.org.
+
+@inproceedings{babai2016gi,
+  author    = {Babai, L{\'a}szl{\'o}},
+  title     = {Graph isomorphism in quasipolynomial time [extended abstract]},
+  booktitle = {Proceedings of the 48th Annual ACM Symposium on Theory of Computing (STOC)},
+  year      = {2016},
+  pages     = {684--697},
+  doi       = {10.1145/2897518.2897542}
+}
+
+@article{bentley1975kdtree,
+  author  = {Bentley, Jon Louis},
+  title   = {Multidimensional binary search trees used for associative searching},
+  journal = {Communications of the ACM},
+  year    = {1975},
+  volume  = {18},
+  pages   = {509--517},
+  doi     = {10.1145/361002.361007}
+}
+
+@inproceedings{guttman1984rtree,
+  author    = {Guttman, Antonin},
+  title     = {R-trees: a dynamic index structure for spatial searching},
+  booktitle = {Proceedings of the 1984 ACM SIGMOD International Conference on Management of Data},
+  year      = {1984},
+  pages     = {47},
+  doi       = {10.1145/602259.602266}
+}
+% Crossref gives only first page 47; full title from the proposal, check end page in ACM DL.
+
+@article{malkov2020hnsw,
+  author  = {Malkov, Yu. A. and Yashunin, D. A.},
+  title   = {Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year    = {2020},
+  volume  = {42},
+  number  = {4},
+  pages   = {824--836},
+  doi     = {10.1109/TPAMI.2018.2889473}
+}
+
+@article{johnson2021faiss,
+  author  = {Johnson, Jeff and Douze, Matthijs and J{\'e}gou, Herv{\'e}},
+  title   = {Billion-Scale Similarity Search with {GPUs}},
+  journal = {IEEE Transactions on Big Data},
+  year    = {2021},
+  volume  = {7},
+  number  = {3},
+  pages   = {535--547},
+  doi     = {10.1109/TBDATA.2019.2921572}
+}
+
+@article{codd1970relational,
+  author  = {Codd, E. F.},
+  title   = {A relational model of data for large shared data banks},
+  journal = {Communications of the ACM},
+  year    = {1970},
+  volume  = {13},
+  pages   = {377--387},
+  doi     = {10.1145/362384.362685}
+}
+
+@misc{bergholm2018pennylane,
+  author        = {Bergholm, Ville and Izaac, Josh and Schuld, Maria and Gogolin, Christian and Ahmed, Shahnawaz and others},
+  title         = {{PennyLane}: Automatic differentiation of hybrid quantum-classical computations},
+  year          = {2018},
+  eprint        = {1811.04968},
+  archivePrefix = {arXiv},
+  primaryClass  = {quant-ph}
+}
+
+% ---- Supplement (verified 2026-11-02 in the code thread; not yet in the canonical project bib) ----
+@article{abbas2024challenges, author={Abbas, Amira and others}, title={Challenges and opportunities in quantum optimization}, journal={Nature Reviews Physics}, volume={6}, pages={718--735}, year={2024}, doi={10.1038/s42254-024-00770-9}}
+@article{sureshbabu2024weighted, author={Sureshbabu, Shree Hari and Herman, Dylan and Shaydulin, Ruslan and Basso, Joao and Chakrabarti, Shouvanik and Sun, Yue and Pistoia, Marco}, title={Parameter Setting in Quantum Approximate Optimization of Weighted Problems}, journal={Quantum}, volume={8}, pages={1231}, year={2024}, doi={10.22331/q-2024-01-18-1231}}
+@article{amosy2024iterationfree, author={Amosy, Ohad and Danzig, Tamuz and Lev, Ohad and Porat, Ely and Chechik, Gal and Makmal, Adi}, title={Iteration-free quantum approximate optimization algorithm using neural networks}, journal={Quantum Machine Intelligence}, volume={6}, pages={38}, year={2024}, doi={10.1007/s42484-024-00159-y}}

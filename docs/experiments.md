@@ -150,3 +150,18 @@ Reading: the shift is almost all in gamma (beta barely moves). gamma* itself shr
 supported) and at least as fast at p=2. Heuristic: a new vertex adds ~n of the ~n^2/2 total weight, a relative
 perturbation ~1/n. NOT a proof; small n range (6-18), 12-20 samples, p=2 noisy. Next: a proof attempt for p=1 using the
 weighted closed form, and more samples at p=2.
+
+## E12 — Growing cache along the stream: amortised cost (C3) (2026-11-02)
+`python experiments/cache_growth.py --config experiments/configs/stream.yaml --p 1 2` (357 events, 14 streams, cache
+starts empty, nothing trained in advance, tau=0.999). Mean cost per event over all events (last 50 events):
+| method | p=1 | p=2 |
+|---|---|---|
+| random | 239 (456) | 1294 (1472) |
+| fixed | 96 (195) | 129 (68) |
+| temporal | 128 (309) | 126 (52) |
+| cache (best of 3 nearest) | 84 (248) | **74 (30)** |
+| select (better of temporal and cache) | **77 (190)** | 75 (31) |
+Break-even (running mean of cache below fixed): after 4-5 events. p=2: cache cost falls from ~160 (first 25 events)
+to ~30 (last 50): the cache learns along the stream; 1.7x cheaper than fixed overall, 17x cheaper than random.
+p=1: means are dominated by a few budget failures (cost 3000), so the ranking is noisy; report medians as well.
+Figure: results/cache_growth_stream_p2.png (draft; steps in the curves are single failures entering/leaving the window).

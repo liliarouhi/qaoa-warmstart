@@ -58,10 +58,10 @@ def tune_tqa(con, train, p, rng):
     return float(grid[int(np.argmax(score))])
 
 
-def run_start(sim, start, f_best, extra_cost=0):
+def run_start(sim, start, f_best, extra_cost=0, tau=None):
     p = len(start[0])
     f0 = sim.expectation(*start)
-    r = optimize(sim, *start, method="L-BFGS-B", target=TAU * f_best, max_cost=BUDGET)
+    r = optimize(sim, *start, method="L-BFGS-B", target=(tau or TAU) * f_best, max_cost=BUDGET)
     ett = r["ett"] if r["ett"] is not None else BUDGET
     return {"start": f0 / f_best, "ett": ett, "cost": ett + extra_cost, "ok": r["ett"] is not None}
 

@@ -72,3 +72,38 @@ Result (36 test graphs; SMALL, not evidence):
   between two branches (gamma ~2.3 at n=8-10, ~1.0 at larger n): a jump, which a linear model cannot fit.
 Notes: matches E5 (p=1 leaves little room). Next: same on the 1008-graph dataset; then random forest
 (can fit jumps) and the Newton base for stream snapshots.
+
+## E7 — Random forest vs Ridge vs fixed (pilot data, 2026-11-02)
+`python experiments/eval_models.py --config experiments/configs/pilot.yaml --p 1 2` (36 test graphs; SMALL).
+- p=2, all graphs: F(start)/F_best fixed 0.965, ridge 0.993, forest 0.996 (worst case 0.882 / 0.907 / 0.973);
+  ETT mean 38 / 15.6 / 12.2. Forest best on every family.
+- p=1: forest best on ER and 3-regular (3-regular 0.970 -> 1.000), but on DVRP still worse than fixed (0.971 vs 0.996).
+- Diagnosis of DVRP p=1: not a label problem (only 2/113 labels differ from the optimum reached from the fixed
+  start, value loss <= 1.6%). The test stream has gamma* ~0.9 at n=8-10, the 3 training streams have 1.0-2.8 at the
+  same n: gamma* depends on the stream's geometry (cluster layout), and 3 training streams are too few.
+  Expectation: the main dataset (10 training streams) should fix this; check there.
+- Feature importance (forest): w_max, lap_lambda_max, w_mean, strength / 1/strength. Triangles/degree ~0
+  (expected: complete DVRP graphs have constant degree).
+
+## E8 — Warm starts along the order stream: total cost (2026-11-02)
+Config `stream.yaml` (DVRP only, 10 train + 4 test streams, n=8-12, p=1,2; 357 graphs, labelling 4 min).
+`python experiments/eval_stream.py --config experiments/configs/stream.yaml --p 1 2` (78 test pairs, tau=0.999).
+Total cost = start cost + ETT, circuit-equivalents. Mean (median) / success:
+| start | p=1 | p=2 |
+|---|---|---|
+| fixed | 60 (22) / 99% | 123 (104) / 100% |
+| forest (cold) | 53 (8) / 99% | 57 (48) / 100% |
+| temporal | 124 (4) / 96% | 57 (48) / 100% |
+| temporal+ML | 131 (14) / 96% | **47 (40)** / 100% |
+| newton (fresh Hessian) | 140 (24) / 96% | 102 (80) / 100% |
+| newton_reuseH (refresh every 5) | 129 (8) / 96% | 64 (56) / 100% |
+| select = better of newton_reuseH and forest (+2 evals) | **53 (10) / 99%** | 56 (42) / 100% |
+Findings:
+1. Newton gives the most accurate start (angle error 0.005 at p=1) but a fresh Hessian costs more than it saves; reusing
+   the Hessian (Lemma D0 motivation) cuts the start cost 3x.
+2. "Jumps": in 11/78 (p=1) and 19/78 (p=2) events the best angles moved > 0.5 rad (the best optimum switched branch,
+   i.e. the local assumption of Theorem C / Prop. D does not hold). All temporal methods fail there (min start 0.645);
+   the cold ML start does not. 'select' combines both: robust and cheap. Part of the jumps may be label noise
+   (8 random starts): check with more starts before claiming.
+3. p=2: temporal+ML (previous angles + learned correction) has the lowest mean cost.
+No single winner; the combination of theory-based step and ML is the best overall. Small n only: repeat on main data.

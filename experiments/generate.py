@@ -48,8 +48,8 @@ def main() -> None:
     seed, counts = cfg["seed"], {}
 
     for split in ("train", "test"):
-        spec = cfg["synthetic"][split]
-        for fam, fp in cfg["families"].items():
+        spec = (cfg.get("synthetic") or {}).get(split, {"sizes": [], "per_size": 0})
+        for fam, fp in (cfg.get("families") or {}).items():
             for n in spec["sizes"]:
                 for i in range(spec["per_size"]):
                     rng = rng_for(seed, split, fam, n, i)

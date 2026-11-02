@@ -77,3 +77,26 @@ def refine_optimum(sim: QAOASimulator, gammas, betas, iters: int = 20, tol: floa
         theta = theta - np.linalg.solve(H, g)
     gm, bt = split_params(theta)
     return {"gammas": gm, "betas": bt, "grad_norm": float(np.linalg.norm(sim.gradient(gm, bt)[1]))}
+
+
+def newton_with_hessian(sim_new: QAOASimulator, gammas_old, betas_old, H: np.ndarray,
+                        max_step: float = 0.5) -> dict:
+    """Newton step with a GIVEN (reused) Hessian: cost = one gradient.
+
+    Justification: Lemma D0 says one new order changes the objective, hence also its Hessian, only at
+    second order in the new edge weights, so the Hessian computed a few events ago is still close.
+    """
+    theta = join_params(gammas_old, betas_old)
+    p = theta.size // 2
+    before = sim_new.circuit_equivalents(p)
+    _, g = sim_new.gradient(*split_params(theta))
+    status = "ok"
+    if np.linalg.eigvalsh(H)[-1] >= 0:
+        step, status = np.zeros_like(theta), "not_concave"
+    else:
+        step = -np.linalg.solve(H, g)
+        if (norm := np.linalg.norm(step)) > max_step:
+            step, status = step * (max_step / norm), "capped"
+    gm, bt = split_params(theta + step)
+    return {"gammas": gm, "betas": bt, "step_norm": float(np.linalg.norm(step)), "status": status,
+            "cost": sim_new.circuit_equivalents(p) - before}

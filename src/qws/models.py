@@ -53,3 +53,39 @@ class ResidualRidge:
         A = np.column_stack([np.ones(len(Zs)), Zs])
         B = self.base_ if base is None else np.asarray(base, float)
         return B + A @ self.W_
+
+
+class ResidualForest:
+    """Random forest on the same residual target (scikit-learn, optional dependency `.[ml]`).
+
+    Why: trees can fit jumps (e.g. the DVRP gamma* branch switch at p=1, E6) that a linear model cannot.
+    Trees are invariant to monotone feature transforms, so no standardisation is needed.
+    """
+
+    def __init__(self, n_estimators: int = 300, min_samples_leaf: int = 3, max_features: float = 0.5,
+                 random_state: int = 0):
+        self.kw = dict(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf,
+                       max_features=max_features, random_state=random_state, n_jobs=-1)
+
+    def fit(self, X, theta, base=None, extra=None):
+        """extra: optional additional columns (e.g. feature change since the previous snapshot)."""
+        from sklearn.ensemble import RandomForestRegressor
+        theta = np.asarray(theta, float)
+        self.base_ = np.median(theta, axis=0) if base is None else None
+        B = np.broadcast_to(self.base_, theta.shape) if base is None else np.asarray(base, float)
+        self.rf_ = RandomForestRegressor(**self.kw).fit(self._inputs(X, extra), theta - B)
+        self.n_extra_ = 0 if extra is None else np.asarray(extra).shape[1]
+        return self
+
+    @staticmethod
+    def _inputs(X, extra):
+        Z = design(X)
+        return Z if extra is None else np.column_stack([Z, np.asarray(extra, float)])
+
+    def predict(self, X, base=None, extra=None):
+        B = self.base_ if base is None else np.asarray(base, float)
+        return B + self.rf_.predict(self._inputs(X, extra)).reshape(len(X), -1)
+
+    def feature_importance(self) -> dict:
+        names = FEATURE_NAMES + ["inv_strength_mean"] + [f"extra_{i}" for i in range(self.n_extra_)]
+        return dict(sorted(zip(names, self.rf_.feature_importances_), key=lambda kv: -kv[1]))

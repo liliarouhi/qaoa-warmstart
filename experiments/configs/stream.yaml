@@ -1,0 +1,18 @@
+# DVRP-only dataset for the dynamic experiment (core of the thesis): many streams, small graphs so that
+# labelling takes minutes. Usage:
+#   python experiments/generate.py --config experiments/configs/stream.yaml
+#   python experiments/label.py    --config experiments/configs/stream.yaml
+#   python experiments/eval_stream.py --config experiments/configs/stream.yaml --p 1 2
+name: stream
+db: data/stream.db
+seed: 11
+
+dvrp:
+  common: {rate: 1.0, mean_service: 10.0, n_clusters: 3, spread: 0.08}
+  train: {streams: 10, events: 50, n_min: 8, n_max: 12}
+  test:  {streams: 4, events: 50, n_min: 8, n_max: 12}
+
+labels:
+  p: [1, 2]
+  n_starts: 8
+  optimizer: L-BFGS-B

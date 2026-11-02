@@ -19,6 +19,6 @@ python scripts/quickstart.py
 pip install -e ".[ml]"
 ```
 
-Expected: all tests pass (31 at v0.1.0). If `pytest` reports a skipped PennyLane test,
+Expected: all tests pass (51 at v0.2.0). If `pytest` reports a skipped PennyLane test,
 step 4 did not install the `quantum` extra.
 SQLite R*Tree: included in Homebrew and python.org builds; `tests/test_db.py` checks it.

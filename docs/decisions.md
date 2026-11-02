@@ -43,3 +43,20 @@ service-area diameter), not the current maximum distance, so adding an order nev
 *Alternatives:* k-NN sparsification (rejected: Max-Cut on a k-NN distance graph separates neighbours, checked
 numerically); per-snapshot max normalisation (rejected: rescales every edge, breaks Corollary A1).
 *Why:* keeps the clustering meaning and makes Lemma A / Corollary A1 apply directly. Status: agreed with author 2026-11-02, supervisor approval pending.
+
+**D9 — Baseline initialisations.** random (uniform on the fundamental domain), fixed (mean of training
+optima), INTERP (Zhou et al. 2020) for p>1, TQA linear ramp (Sack & Serbyn 2021) with s_l=(l-1/2)/p, and temporal
+(previous snapshot's optimum). TQA's dt must be tuned on training graphs because our weights are rescaled.
+*Open:* re-check the exact TQA ramp in the paper before citing. Status: implemented in `src/qws/init.py`.
+
+**D10 — Gradient cost accounting.** Gradients use the adjoint method in simulation (exact, ~3 evaluations).
+On hardware a gradient needs the parameter-shift rule (2 runs per parameter), so the cost metric counts
+nfev + 4p * ngev "circuit-equivalents". This keeps gradient-based and gradient-free optimisers comparable.
+Status: `QAOASimulator.circuit_equivalents`, used by `optimize`.
+
+**D11 — Feature vector v1.** 16 named features: size, density, degree and strength (weighted degree) statistics,
+weight statistics, triangles and mean triangle weight, Laplacian lambda_max and lambda_2, Mohar-Poljak ratio.
+Weighted versions are needed because the DVRP graph is complete (unweighted degree/triangles are constant).
+The WL hash is no longer the cache key (dynamic graphs never repeat exactly); the cache will use nearest
+neighbours in feature space (Phase 3). Schema change for `graph.wl_hash` is deferred to Phase 3.
+Status: `src/qws/features.py`, FEATURE_VERSION = 1.

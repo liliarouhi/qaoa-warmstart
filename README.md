@@ -21,16 +21,19 @@ good starting point saves, and which source of starting points is best:
 Max-Cut is used as the **clustering stage** of a cluster-first, route-second DVRP pipeline
 (not as a full VRP encoding). See [docs/decisions.md](docs/decisions.md).
 
-## What is in the repository (v0.1.0, Phase 0)
+## What is in the repository (v0.2.0, Phase 1)
 | Module | Content |
 |---|---|
 | `qws.graphs` | weighted graphs, ER / regular / Euclidean generators, brute-force Max-Cut, QUBO to Max-Cut reduction |
 | `qws.simulator` | NumPy state-vector QAOA with a precomputed cut diagonal; evaluation counter `nfev` |
 | `qws.symmetry` | symmetries of the objective and canonicalisation to a fundamental domain |
 | `qws.analytic_p1` | closed-form p=1 expectation for unweighted Max-Cut and its optimiser |
+| `qws.init` | starting points: random, fixed, INTERP, TQA |
+| `qws.optimize` | COBYLA / Nelder-Mead / L-BFGS-B loop with budget and evaluations-to-target (ETT) |
+| `qws.features` | 16 named, relabelling-invariant graph features (degree, strength, triangles, Laplacian spectrum) |
 | `qws.db` | SQLite schema (13 tables, R*Tree, trigger-maintained cache) and data-access layer |
 
-Planned: feature extraction and WL hashing, optimisers with nfev-to-target, ML models
+Planned: ML models
 (Ridge, random forest, PyTorch MLP), similarity cache, DVRP stream with 2-opt routing.
 
 ## Install (macOS on Apple Silicon, Linux)
@@ -39,7 +42,7 @@ git clone https://github.com/liliarouhi/qaoa-warmstart.git
 cd qaoa-warmstart
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[quantum,dev]"
-pytest                          # 31 tests, includes a check against PennyLane
+pytest                          # 51 tests, includes a check against PennyLane
 python scripts/quickstart.py    # random vs fixed start on one routing graph
 ```
 Details: [docs/setup_mac_m2.md](docs/setup_mac_m2.md).
@@ -56,6 +59,9 @@ Cost metric: number of objective evaluations (`nfev`). Full list: [docs/math_con
 | p=1 closed form (Wang et al. 2018) equals the simulator | `tests/test_lemmas.py` |
 | Simulator equals PennyLane `default.qubit` | `tests/test_simulator.py` |
 | Schema constraints, cache trigger, transaction rollback | `tests/test_db.py` |
+| Lemma A: adding a vertex changes F by at most a bound in the new edge weights (dense graphs) | `tests/test_stability.py` |
+| Lemma B: each edge term depends only on its light cone; sharp threshold (sparse graphs) | `tests/test_locality.py` |
+| Theorem C: optimal-angle shift <= gradient change / curvature | `tests/test_angle_shift.py` |
 
 ## Repository layout
 ```

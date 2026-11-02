@@ -26,3 +26,12 @@ Question: how loose is the dense-regime bound (Corollary A1)?
 Setup: 200 complete Euclidean graphs, n=8 plus one new vertex, p=1, gamma~U(0,1), beta~U(-0.7,0.7), seed 3, fixed weights.
 Result: actual |Delta F| / bound: median 0.069, max 0.489. Bound always held (also tests/test_stability.py, p=1..3).
 Notes: bound valid but ~14x loose typically; tightening is an open question for the theory chapter.
+
+## E2 — Lemma B light cone (2026-11-02)
+Checked edge terms on 3-regular (n=10) and ER (n=9, p=0.3) graphs, p=1,2: term on the full graph equals the term on
+the light-cone subgraph. Threshold sharp on a path graph (distance p+1 unchanged, distance p changed). `tests/test_locality.py`.
+
+## E3 — Theorem C angle shift (2026-11-02)
+40 complete Euclidean graphs, n=6 -> 7, p=1, fixed weight scale, seed 11. Curvature assumption held in 38/40.
+Shift ||theta'* - theta*||: median 0.056 rad. Bound eps/mu: median 0.155. Ratio: median 0.31, max 0.68.
+Notes: bound always held, ~3x conservative (much tighter than Lemma A's ~14x).

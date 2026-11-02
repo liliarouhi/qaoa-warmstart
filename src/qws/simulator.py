@@ -32,6 +32,15 @@ def _apply_mixer(psi: np.ndarray, n: int, beta: float) -> np.ndarray:
     return psi.reshape(-1)
 
 
+def _apply_B(psi: np.ndarray, n: int) -> np.ndarray:
+    """B psi with B = sum_j X_j (X_j flips bit j of the basis index)."""
+    k = np.arange(psi.size)
+    out = np.zeros_like(psi)
+    for q in range(n):
+        out += psi[k ^ (1 << q)]
+    return out
+
+
 class QAOASimulator:
     """Exact (noise-free) QAOA expectation for one graph.
 
@@ -46,6 +55,7 @@ class QAOASimulator:
         self.c_max = float(self.c.max())
         self.c_min = float(self.c.min())
         self.nfev = 0  # number of objective evaluations, the cost metric of the thesis
+        self.ngev = 0  # number of gradient evaluations (adjoint method), counted separately
 
     def state(self, gammas, betas) -> np.ndarray:
         gammas = np.atleast_1d(np.asarray(gammas, float))
@@ -63,6 +73,39 @@ class QAOASimulator:
         self.nfev += 1
         psi = self.state(gammas, betas)
         return float(np.real(np.vdot(psi, self.c * psi)))
+
+    def gradient(self, gammas, betas) -> tuple[float, np.ndarray]:
+        """(F, dF/dtheta) with theta = [gammas, betas], by the adjoint method.
+
+        Cost: about 3x one evaluation of F, independent of p (finite differences would need
+        2p evaluations). Increments self.ngev, not self.nfev. On hardware a gradient would
+        need the parameter-shift rule, i.e. about 2 circuit runs per parameter; experiments
+        convert ngev to circuit-equivalents with `circuit_equivalents()`.
+
+        Derivation: for an operation exp(-i t G) acting on state phi, with lambda the
+        back-propagated co-state (later operations)^dagger C psi,
+            dF/dt = 2 Im <lambda| G |phi>.
+        """
+        gammas = np.atleast_1d(np.asarray(gammas, float))
+        betas = np.atleast_1d(np.asarray(betas, float))
+        self.ngev += 1
+        psi = self.state(gammas, betas)
+        lam = self.c * psi
+        f = float(np.real(np.vdot(psi, lam)))
+        p = len(gammas)
+        dg, db = np.zeros(p), np.zeros(p)
+        for l in range(p - 1, -1, -1):
+            db[l] = 2 * np.imag(np.vdot(lam, _apply_B(psi, self.n)))
+            psi = _apply_mixer(psi, self.n, -betas[l])
+            lam = _apply_mixer(lam, self.n, -betas[l])
+            dg[l] = 2 * np.imag(np.vdot(lam, self.c * psi))
+            phase = np.exp(1j * gammas[l] * self.c)
+            psi, lam = phase * psi, phase * lam
+        return f, np.concatenate([dg, db])
+
+    def circuit_equivalents(self, p: int) -> int:
+        """Hardware-cost proxy: nfev + 2*(2p)*ngev (parameter-shift needs 2 runs per parameter)."""
+        return self.nfev + 4 * p * self.ngev
 
     def ratio(self, gammas, betas) -> float:
         """Approximation ratio F_p / C_max (meaningful for non-negative weights)."""

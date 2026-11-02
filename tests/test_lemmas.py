@@ -89,3 +89,28 @@ def test_mohar_poljak_bound(rng):
             continue
         lam_max = np.linalg.eigvalsh(g.laplacian())[-1]
         assert max_cut_bruteforce(g)[0] <= n * lam_max / 4 + 1e-9
+
+
+def test_S4_odd_degree_symmetry(rng):
+    """S4: on a 3-regular graph, gamma_l + pi with beta_k -> -beta_k (k >= l) leaves F unchanged,
+    and canonicalize keeps F while putting every gamma in (-pi/2, pi/2]."""
+    from qws.graphs import random_regular
+    from qws.symmetry import symmetry_flags
+    g3 = random_regular(8, 3, rng)
+    assert symmetry_flags(g3) == {"integer_weights": True, "odd_degrees": True}
+    sim = QAOASimulator(g3)
+    for p in [1, 2, 3]:
+        g, b = rng.uniform(-3, 3, p), rng.uniform(-1, 1, p)
+        f = sim.expectation(g, b)
+        for l in range(p):
+            g2, b2 = g.copy(), b.copy()
+            g2[l] += np.pi
+            b2[l:] *= -1
+            assert np.isclose(sim.expectation(g2, b2), f, atol=1e-10)
+        gc, bc = canonicalize(g, b, integer_weights=True, odd_degrees=True)
+        assert np.isclose(sim.expectation(gc, bc), f, atol=1e-10)
+        assert in_fundamental_domain(gc, bc, integer_weights=True, odd_degrees=True)
+    # not a symmetry when some degree is even (4-regular)
+    sim4 = QAOASimulator(random_regular(8, 4, rng))
+    g, b = np.array([0.4]), np.array([0.3])
+    assert not np.isclose(sim4.expectation(g + np.pi, -b), sim4.expectation(g, b))

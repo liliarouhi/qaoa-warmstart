@@ -19,20 +19,21 @@ import numpy as np
 from scipy.optimize import minimize
 
 from .simulator import QAOASimulator, join_params, split_params
-from .symmetry import canonicalize
+from .symmetry import canonicalize, symmetry_flags
 
 GRADIENT_FREE = {"COBYLA", "Nelder-Mead"}
 GRADIENT_BASED = {"L-BFGS-B", "BFGS"}
 
 
 def optimize(sim: QAOASimulator, gammas0, betas0, method: str = "COBYLA", target: float | None = None,
-             max_cost: int = 2000, integer_weights: bool = False, record_trace: bool = False) -> dict:
+             max_cost: int = 2000, integer_weights: bool | None = None, record_trace: bool = False) -> dict:
     """Maximise F_p from (gammas0, betas0).
 
     Parameters
     ----------
     target : absolute value of F to reach (e.g. 0.99 * F_best); None disables ETT.
     max_cost : budget in circuit-equivalents.
+    integer_weights : None = detect from the graph (symmetry_flags; also enables S4 for odd degrees).
 
     Returns dict with keys: gammas, betas (canonical), f, ratio, nfev, ngev, cost, ett,
     wall_ms, method, trace (list of (cost, best_f) if record_trace).
@@ -84,7 +85,10 @@ def optimize(sim: QAOASimulator, gammas0, betas0, method: str = "COBYLA", target
         pass
     wall_ms = (time.perf_counter() - t0) * 1e3
 
-    g, b = canonicalize(*split_params(best["x"]), integer_weights=integer_weights)
+    flags = symmetry_flags(sim.graph)
+    if integer_weights is not None:
+        flags = {"integer_weights": integer_weights, "odd_degrees": integer_weights and flags["odd_degrees"]}
+    g, b = canonicalize(*split_params(best["x"]), **flags)
     return {
         "gammas": g, "betas": b, "f": float(best["f"]), "ratio": float(best["f"] / sim.c_max),
         "nfev": sim.nfev, "ngev": sim.ngev, "cost": sim.circuit_equivalents(p),

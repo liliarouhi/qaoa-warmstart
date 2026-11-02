@@ -20,7 +20,10 @@ $\gamma$ wrapped only for integer weights. *Alternatives:* raw angles; $\beta\in
 centred on 0 avoids splitting the common small-beta optima at the boundary.
 *Prior work:* the symmetries themselves are known (shaydulin2021symmetries); only the label
 canonicalisation and its measured effect are claimed.
-*Limitation:* graph-specific extra symmetries (e.g. odd-degree regular graphs) are not used.
+*Update 2026-11-02 (Phase 2 pilot):* for integer weights with every vertex degree odd (e.g. 3-regular) the extra
+symmetry S4 (gamma_l + pi, beta_k -> -beta_k for k >= l) is now used: gamma_l in (-pi/2, pi/2]. Found because 3-regular
+labels appeared at both gamma and pi - gamma, which made the 'fixed' (median) angles meaningless. `optimize` detects the
+applicable symmetries from the graph (`symmetry_flags`). Other graph-specific symmetries are still not used.
 Status: implemented.
 
 **D4 — Cost metric nfev-to-target (ETT).** *Alternatives:* iterations, wall time only.
@@ -60,3 +63,18 @@ Weighted versions are needed because the DVRP graph is complete (unweighted degr
 The WL hash is no longer the cache key (dynamic graphs never repeat exactly); the cache will use nearest
 neighbours in feature space (Phase 3). Schema change for `graph.wl_hash` is deferred to Phase 3.
 Status: `src/qws/features.py`, FEATURE_VERSION = 1.
+
+**D12 — Newton (perturbative) warm start as baseline and as the base of residual learning.** One safeguarded
+Newton step on the new objective from the previous optimum (`perturb.newton_warm_start`; finite-difference Hessian
+from adjoint gradients; returns old angles if the Hessian is not negative definite; step capped at 0.5 rad).
+*Why:* Proposition D gives error O(shift^2), and Lemma D0 makes the shift O(w^2) in the new edge weights.
+The ML model (C1) will learn the residual theta'* - theta_hat. *Cost:* (1 + 4p) gradients, counted in circuit-equivalents.
+Status: implemented and tested (E4), 2026-11-02.
+
+**D13 — Dataset, split and labels (Phase 2).** Families ER (p=0.5, U(0,1) weights), 3-regular (unweighted) and
+DVRP (Poisson stream, D8 fixed scale, 3 Gaussian neighbourhoods). Train sizes 8-16, test 8-20 (18-20 test only =
+size generalisation), p in {1,2,3}. DVRP train/test is split by WHOLE stream (consecutive snapshots are near
+duplicates, splitting inside a stream would leak). Label = best of 10 random L-BFGS-B starts + INTERP from p-1 +
+previous snapshot's label ('best found', not proven optimal). Schema v2 (`PRAGMA user_version=2`): `graph.split`,
+`stream` table, `snapshot.stream_id/seq/event/prev_ok`, `qaoa_run.ngev`, more `init_method` values.
+Config: `experiments/configs/main.yaml`. Status: implemented 2026-11-02, labelling to run on the M2.

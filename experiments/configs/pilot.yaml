@@ -1,0 +1,22 @@
+# Small pilot (runs in minutes): "are fixed (mean) angles already good?"
+name: pilot
+db: data/pilot.db
+seed: 7
+
+families:
+  ER:  {edge_p: 0.5}
+  REG: {degree: 3}
+
+synthetic:
+  train: {sizes: [8, 10, 12], per_size: 8}
+  test:  {sizes: [8, 10, 12, 14], per_size: 3}
+
+dvrp:
+  common: {rate: 1.0, mean_service: 10.0, n_clusters: 3, spread: 0.08}
+  train: {streams: 3, events: 30, n_min: 8, n_max: 12}
+  test:  {streams: 1, events: 30, n_min: 8, n_max: 14}
+
+labels:
+  p: [1, 2]
+  n_starts: 8
+  optimizer: L-BFGS-B

@@ -21,7 +21,7 @@ good starting point saves, and which source of starting points is best:
 Max-Cut is used as the **clustering stage** of a cluster-first, route-second DVRP pipeline
 (not as a full VRP encoding). See [docs/decisions.md](docs/decisions.md).
 
-## What is in the repository (v0.2.0, Phase 1)
+## What is in the repository (v0.3.0, Phase 2)
 | Module | Content |
 |---|---|
 | `qws.graphs` | weighted graphs, ER / regular / Euclidean generators, brute-force Max-Cut, QUBO to Max-Cut reduction |
@@ -30,11 +30,14 @@ Max-Cut is used as the **clustering stage** of a cluster-first, route-second DVR
 | `qws.analytic_p1` | closed-form p=1 expectation for unweighted Max-Cut and its optimiser |
 | `qws.init` | starting points: random, fixed, INTERP, TQA |
 | `qws.optimize` | COBYLA / Nelder-Mead / L-BFGS-B loop with budget and evaluations-to-target (ETT) |
+| `qws.perturb` | Newton (first-order perturbative) warm start from the previous optimum (Proposition D) |
+| `qws.dvrp` | Poisson order stream producing complete clustering graphs with a fixed weight scale |
 | `qws.features` | 16 named, relabelling-invariant graph features (degree, strength, triangles, Laplacian spectrum) |
-| `qws.db` | SQLite schema (13 tables, R*Tree, trigger-maintained cache) and data-access layer |
+| `qws.db` | SQLite schema (14 tables, R*Tree, trigger-maintained cache) and data-access layer |
+| `experiments/` | `generate.py` (datasets), `label.py` (best-known angles, resumable), `pilot_fixed.py`, YAML configs |
 
-Planned: ML models
-(Ridge, random forest, PyTorch MLP), similarity cache, DVRP stream with 2-opt routing.
+Planned (Phase 3): ML models (Ridge, random forest, PyTorch MLP) learning the residual on top of the
+Newton prediction, and the k-nearest-neighbour similarity cache.
 
 ## Install (macOS on Apple Silicon, Linux)
 ```bash
@@ -42,10 +45,18 @@ git clone https://github.com/liliarouhi/qaoa-warmstart.git
 cd qaoa-warmstart
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[quantum,dev]"
-pytest                          # 51 tests, includes a check against PennyLane
+pytest                          # 57 tests, includes a check against PennyLane
 python scripts/quickstart.py    # random vs fixed start on one routing graph
 ```
 Details: [docs/setup_mac_m2.md](docs/setup_mac_m2.md).
+
+## Build the dataset (Phase 2)
+```bash
+python experiments/generate.py --config experiments/configs/main.yaml      # seconds
+python experiments/label.py    --config experiments/configs/main.yaml --p 1 --max-n 12   # quick first pass
+python experiments/label.py    --config experiments/configs/main.yaml --p 1 2 3          # overnight; Ctrl+C safe, resumes
+python experiments/pilot_fixed.py --config experiments/configs/pilot.yaml --p 1 2     # small pilot, minutes
+```
 
 ## Conventions
 $$|\boldsymbol\gamma,\boldsymbol\beta\rangle=\prod_{l=1}^{p} e^{-i\beta_l B}e^{-i\gamma_l C}|+\rangle^{\otimes n},\qquad F_p=\langle C\rangle\ \text{(maximised)}$$
@@ -62,13 +73,16 @@ Cost metric: number of objective evaluations (`nfev`). Full list: [docs/math_con
 | Lemma A: adding a vertex changes F by at most a bound in the new edge weights (dense graphs) | `tests/test_stability.py` |
 | Lemma B: each edge term depends only on its light cone; sharp threshold (sparse graphs) | `tests/test_locality.py` |
 | Theorem C: optimal-angle shift <= gradient change / curvature | `tests/test_angle_shift.py` |
+| Proposition D: one Newton step has error quadratic in the shift | `tests/test_perturb.py` |
+| Lemma D0: a new order moves the angles only at second order in its edge weights | `tests/test_perturb.py` |
+| S4: extra symmetry gamma+pi for integer graphs with all degrees odd (e.g. 3-regular) | `tests/test_lemmas.py` |
 
 ## Repository layout
 ```
-src/qws/            package (graphs, simulator, symmetry, analytic_p1, db/)
+src/qws/            package (graphs, simulator, symmetry, analytic_p1, init, optimize, features, perturb, dvrp/, db/)
 tests/              pytest suite
 scripts/            quickstart.py, verify_lemmas.py (standalone checks)
-experiments/        configs and run scripts (Phase 2+)
+experiments/        generate.py, label.py, pilot_fixed.py, configs/*.yaml
 docs/               design notes mapped to thesis chapters
 data/ results/      git-ignored: databases and raw outputs
 ```

@@ -1,5 +1,6 @@
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
+PRAGMA user_version = 2;   -- schema version (v2: split, stream, ngev, more init methods; decision D13)
 
 -- 1) DVRP world (operational data)
 CREATE TABLE depot    (depot_id INTEGER PRIMARY KEY, x REAL NOT NULL, y REAL NOT NULL);
@@ -8,6 +9,7 @@ CREATE TABLE vehicle  (vehicle_id INTEGER PRIMARY KEY,
                        capacity REAL NOT NULL CHECK (capacity > 0));
 CREATE TABLE customer (customer_id INTEGER PRIMARY KEY, x REAL NOT NULL, y REAL NOT NULL);
 CREATE TABLE orders   (order_id INTEGER PRIMARY KEY,
+                       stream_id INTEGER REFERENCES stream(stream_id) ON DELETE CASCADE,
                        customer_id INTEGER NOT NULL REFERENCES customer(customer_id),
                        demand REAL NOT NULL CHECK (demand > 0),
                        arrival_t REAL NOT NULL,
@@ -20,15 +22,23 @@ CREATE TABLE graph (graph_id   INTEGER PRIMARY KEY,
                     n_nodes    INTEGER NOT NULL CHECK (n_nodes BETWEEN 2 AND 30),
                     n_edges    INTEGER NOT NULL,
                     weight_scale REAL NOT NULL,         -- normalisation factor applied to weights
-                    family     TEXT NOT NULL);          -- 'ER','REG','DVRP',...
+                    family     TEXT NOT NULL,           -- 'ER','REG','DVRP',...
+                    split      TEXT NOT NULL DEFAULT 'train' CHECK (split IN ('train','val','test')));
 CREATE INDEX ix_graph_hash ON graph(wl_hash);
+CREATE INDEX ix_graph_split ON graph(split, family, n_nodes);
 CREATE TABLE graph_edge (graph_id INTEGER NOT NULL REFERENCES graph(graph_id) ON DELETE CASCADE,
                          u INTEGER NOT NULL, v INTEGER NOT NULL, w REAL NOT NULL,
                          PRIMARY KEY (graph_id, u, v), CHECK (u < v)) WITHOUT ROWID;
+CREATE TABLE stream (stream_id INTEGER PRIMARY KEY, seed INTEGER NOT NULL, config TEXT NOT NULL);  -- config = JSON
 CREATE TABLE snapshot (snapshot_id INTEGER PRIMARY KEY,
+                       stream_id INTEGER NOT NULL REFERENCES stream(stream_id) ON DELETE CASCADE,
+                       seq INTEGER NOT NULL,                -- position in the stream (0,1,2,...)
+                       event TEXT NOT NULL CHECK (event IN ('add','remove')),
+                       prev_ok INTEGER NOT NULL CHECK (prev_ok IN (0,1)),   -- seq-1 is the state just before
                        t REAL NOT NULL,
                        graph_id INTEGER NOT NULL REFERENCES graph(graph_id),
-                       trigger_order INTEGER REFERENCES orders(order_id));
+                       trigger_order INTEGER REFERENCES orders(order_id),
+                       UNIQUE (stream_id, seq));
 CREATE TABLE snapshot_node (snapshot_id INTEGER NOT NULL REFERENCES snapshot(snapshot_id) ON DELETE CASCADE,
                             node_idx INTEGER NOT NULL,
                             order_id INTEGER NOT NULL REFERENCES orders(order_id),
@@ -44,9 +54,9 @@ CREATE VIRTUAL TABLE feature_rtree USING rtree(graph_id, f1_lo, f1_hi, f2_lo, f2
 CREATE TABLE qaoa_run (run_id INTEGER PRIMARY KEY,
                        graph_id INTEGER NOT NULL REFERENCES graph(graph_id) ON DELETE CASCADE,
                        p INTEGER NOT NULL CHECK (p >= 1),
-                       init_method TEXT NOT NULL CHECK (init_method IN ('random','fixed','interp','ml','cache','ml+cache','temporal')),
+                       init_method TEXT NOT NULL CHECK (init_method IN ('random','fixed','interp','tqa','temporal','newton','multistart','ml','cache','ml+cache')),
                        optimizer TEXT NOT NULL, seed INTEGER NOT NULL,
-                       nfev INTEGER NOT NULL, energy REAL NOT NULL, ratio REAL CHECK (ratio BETWEEN 0 AND 1.000001),
+                       nfev INTEGER NOT NULL, ngev INTEGER NOT NULL DEFAULT 0, energy REAL NOT NULL, ratio REAL CHECK (ratio BETWEEN 0 AND 1.000001),
                        wall_ms REAL NOT NULL, model_id INTEGER REFERENCES model(model_id),
                        UNIQUE (graph_id, p, init_method, optimizer, seed));
 CREATE INDEX ix_run_lookup ON qaoa_run(graph_id, p, energy DESC);

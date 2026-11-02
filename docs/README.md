@@ -26,11 +26,16 @@ decisions, numbers and figures it needs, so nothing has to be reconstructed late
 | 3 Theory | Lemma A / Corollary A1 (dense stability) | `docs/proofs/lemma_A.md`, `tests/test_stability.py` |
 | 3 Theory | Lemma B + Corollaries B1, B2 (sparse locality) | `docs/proofs/lemma_B.md`, `tests/test_locality.py` |
 | 3 Theory | Theorem C (angle shift) | `docs/proofs/theorem_C.md`, `tests/test_angle_shift.py` |
+| 3 Theory | Proposition D (Newton correction) + Lemma D0 (second-order shift) | `docs/proofs/proposition_D.md`, `src/qws/perturb.py`, `tests/test_perturb.py` |
 | 4 Method | Baselines (random, fixed, INTERP, TQA, temporal) | `src/qws/init.py` |
 | 4 Method | Cost metric ETT, circuit-equivalents | `src/qws/optimize.py`, `docs/decisions.md` D4, D10 |
 | 4 Method | Feature vector | `src/qws/features.py`, D11 |
 | 5 Implementation | Adjoint gradient | `QAOASimulator.gradient`, `tests/test_phase1.py` |
 | 4 Method | Database design | `src/qws/db/schema.sql`, `docs/db_design.md` |
+| 4 Method | DVRP order stream (Poisson) | `src/qws/dvrp/stream.py`, `tests/test_stream.py` |
+| 4 Method | Datasets, split, labels | `experiments/generate.py`, `experiments/label.py`, D13 |
+| 3 Theory | Lemma 2 extension S4 (odd degrees) | `src/qws/symmetry.py`, `tests/test_lemmas.py::test_S4_*` |
+| 6 Results | Pilot: fixed vs other starts | `experiments/pilot_fixed.py`, `experiments.md` E5 |
 | 5 Implementation | Simulator validation vs PennyLane | `tests/test_simulator.py::test_matches_pennylane` |
 | 5 Implementation | Transactions, trigger, constraints | `src/qws/db/repository.py`, `tests/test_db.py` |
 | 6 Results | All figures/tables | `experiments/`, `scripts/make_figures.py` (Phase 4) |

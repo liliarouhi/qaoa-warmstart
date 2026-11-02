@@ -1,6 +1,6 @@
 PRAGMA foreign_keys = ON;
 PRAGMA journal_mode = WAL;
-PRAGMA user_version = 2;   -- schema version (v2: split, stream, ngev, more init methods; decision D13)
+PRAGMA user_version = 3;   -- schema version (v2: split, stream, ngev, more init methods, D13; v3: feature_projection, D15)
 
 -- 1) DVRP world (operational data)
 CREATE TABLE depot    (depot_id INTEGER PRIMARY KEY, x REAL NOT NULL, y REAL NOT NULL);
@@ -49,6 +49,15 @@ CREATE TABLE graph_feature (graph_id INTEGER PRIMARY KEY REFERENCES graph(graph_
                             feat_version INTEGER NOT NULL,
                             vec BLOB NOT NULL);     -- full float32 vector
 CREATE VIRTUAL TABLE feature_rtree USING rtree(graph_id, f1_lo, f1_hi, f2_lo, f2_hi, f3_lo, f3_hi);  -- PCA-3 projection
+-- PCA-3 projection used to fill feature_rtree (single row; see qws/db/similarity.py, decision D15)
+CREATE TABLE feature_projection (
+    proj_id      INTEGER PRIMARY KEY CHECK (proj_id = 1),
+    feat_version INTEGER NOT NULL,
+    dim          INTEGER NOT NULL CHECK (dim = 3),
+    n_fit        INTEGER NOT NULL,
+    explained    REAL NOT NULL,
+    mu BLOB NOT NULL, sd BLOB NOT NULL, comps BLOB NOT NULL,
+    created_at   TEXT DEFAULT CURRENT_TIMESTAMP);
 
 -- 4) QAOA experiments
 CREATE TABLE qaoa_run (run_id INTEGER PRIMARY KEY,

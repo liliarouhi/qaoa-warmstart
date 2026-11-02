@@ -165,3 +165,19 @@ Break-even (running mean of cache below fixed): after 4-5 events. p=2: cache cos
 to ~30 (last 50): the cache learns along the stream; 1.7x cheaper than fixed overall, 17x cheaper than random.
 p=1: means are dominated by a few budget failures (cost 3000), so the ranking is noisy; report medians as well.
 Figure: results/cache_growth_stream_p2.png (draft; steps in the curves are single failures entering/leaving the window).
+
+## E13 — Similarity search in SQLite: R*Tree vs full scan (2026-11-02)
+`python experiments/bench_rtree.py --sizes 1000 10000 100000 --queries 200 --k 3` (random ER / 3-regular / clustered
+DVRP graphs, n = 8..20, real 16-D features; on-disk database; same 200 new query graphs for every method).
+Median time per query (ms):
+| N | SQL full scan | in RAM (NumPy) | R*Tree exact k-NN | speed-up vs scan | candidates checked |
+|---|---|---|---|---|---|
+| 1 000 | 1.8 | 0.21 | 0.85 | 2.1x | 11% |
+| 10 000 | 17.0 | 1.4 | 2.7 | 6.3x | 6.6% |
+| 100 000 | 158.9 | 14.5 | 10.8 | 14.7x | 3.5% |
+PCA-3 keeps 87% of the feature variance. Wrong answers vs brute force: 0 of 600 queries (the filter is exact, D15).
+Query plan: `SCAN r VIRTUAL TABLE INDEX 2:D1B0D3B2D5B4` + `SEARCH c USING COVERING INDEX ... (graph_id=? AND p=?)`
+(results/rtree_bench.txt). Reading: the index grows slower than N (candidates 3.5% at N = 100000) and beats a disk
+scan by 2-15x; it only beats vectors already in RAM at N = 100000. For the thesis data (~1200 graphs) the in-memory
+cache is enough; the index matters for a cache that keeps growing (C3). Times measured on the cloud machine; rerun on
+the M2 for the thesis table. Average 4.4 radius rounds per query: a better first radius would cut time further.

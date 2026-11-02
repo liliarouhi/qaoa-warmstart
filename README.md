@@ -33,7 +33,7 @@ Max-Cut is used as the **clustering stage** of a cluster-first, route-second DVR
 | `qws.perturb` | Newton (first-order perturbative) warm start from the previous optimum (Proposition D) |
 | `qws.dvrp` | Poisson order stream producing complete clustering graphs with a fixed weight scale |
 | `qws.features` | 16 named, relabelling-invariant graph features (degree, strength, triangles, Laplacian spectrum) |
-| `qws.db` | SQLite schema (14 tables, R*Tree, trigger-maintained cache) and data-access layer |
+| `qws.db` | SQLite schema (15 tables, R*Tree, trigger-maintained cache), data-access layer, exact k-NN similarity search (`similarity.py`) |
 | `experiments/` | `generate.py` (datasets), `label.py` (best-known angles, resumable), `pilot_fixed.py`, YAML configs |
 
 Planned (Phase 3): ML models (Ridge, random forest, PyTorch MLP) learning the residual on top of the

@@ -10,7 +10,8 @@ repeat exactly (decision D11). Query modes:
     best_of_k evaluate F at the angles of the k nearest, return the best     cost k evaluations
 Averaging the angles of several neighbours is NOT used: neighbours can sit on different optima (E9), and the
 average of two optima is usually not an optimum.
-This is the in-memory version (NumPy, O(N) per query); the SQLite R*Tree version is planned for Phase 3b.
+This is the in-memory version (NumPy, O(N) per query); the SQLite version with the R*Tree index is
+qws.db.similarity.DBCache (same neighbours, decision D15, benchmark E13).
 """
 from __future__ import annotations
 

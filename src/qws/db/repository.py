@@ -6,7 +6,7 @@ Design rationale is in docs/db_design.md; schema in schema.sql (Appendix A of th
 
 Phase 0: open/initialise the DB, insert graphs, record a QAOA run atomically, read the cache.
 Phase 2: features, streams/snapshots (DVRP), labels (best-known angles). Similarity search
-via the R*Tree arrives in Phase 3.
+via the R*Tree: qws.db.similarity (Phase 3, D15).
 """
 from __future__ import annotations
 

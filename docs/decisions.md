@@ -85,3 +85,12 @@ is the median of 'best found' labels of 30 random training graphs, stored in `da
 *Why:* guards against arbitrary choices between near-equal optima (label noise). Note: introduced after a first
 reading of E9 that was later corrected; on the pilot and stream data it changes no result (E9). *Cost:* at most 0.1% of the objective value per label. *Alternative:* plain 'best found'
 (`labels.consistent: false`), kept for the ablation. Chosen by the author on 2026-11-02.
+
+**D15 — Similarity search in SQLite: PCA-3 + R*Tree as an exact filter.** Standardised 16-D features are projected
+onto 3 principal directions (fitted on the training graphs, stored in `feature_projection`, schema v3); each graph is
+a point in `feature_rtree`. A cube query returns candidates, exact 16-D distances decide. Because an orthogonal
+projection never increases distances, the answer equals brute-force k-NN (tested). *Why:* exact answers (no
+approximate-NN error to discuss) with a standard SQLite index. *Alternatives:* approximate NN (HNSW, LSH) is faster in
+high dimension but can miss neighbours; more R*Tree dimensions keep more variance but R*Trees degrade above about
+5-6 dimensions. *Limitation:* gains only over a disk scan, not over vectors in RAM (E13). `migrate_v3` adds the table
+to an existing v2 database without touching labels. Status: implemented 2026-11-02.

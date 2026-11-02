@@ -2,11 +2,12 @@
 
 Schema: `src/qws/db/schema.sql` (thesis Appendix A). DAO: `src/qws/db/repository.py`.
 
-## Entities (14 tables + 1 virtual), schema v2
+## Entities (15 tables + 1 virtual), schema v3
 - Operational DVRP world: `depot`, `vehicle`, `customer`, `orders`, `stream` (one simulated order stream; config as JSON)
 - Max-Cut instances: `graph`, `graph_edge`, `snapshot`, `snapshot_node`
 - Learning and experiments: `graph_feature`, `qaoa_run`, `qaoa_param`, `param_cache`, `model`
-- Similarity index: `feature_rtree` (virtual R*Tree on a 3-D PCA projection of features)
+- Similarity index: `feature_rtree` (virtual R*Tree on a 3-D PCA projection of features) and
+  `feature_projection` (the stored projection: mean, std, 3 components; single row)
 
 Task for the author: draw the ER diagram (draw.io or dbdiagram.io), list cardinalities.
 
@@ -44,7 +45,7 @@ Note: SQLite enforces FKs only with `PRAGMA foreign_keys=ON` per connection (`co
 | `ix_run_lookup(graph_id, p, energy DESC)` | best run per (graph, p) |
 | `ix_orders_status_t(status, arrival_t)` | pending orders in arrival order |
 | `ix_graph_split(split, family, n_nodes)` | 'all unlabelled train graphs of a family, smallest first' (label.py) |
-| `feature_rtree` | k-NN by bounding-box filter, then exact distance on candidates |
+| `feature_rtree` | k-NN by cube filter in PCA-3 space, then exact 16-D distance on candidates (exact, see below) |
 
 Phase 3: record `EXPLAIN QUERY PLAN` before/after each index for Chapter 5.
 
@@ -52,3 +53,21 @@ Phase 3: record `EXPLAIN QUERY PLAN` before/after each index for Chapter 5.
 `record_run` writes the run and all its parameters inside `BEGIN IMMEDIATE ... COMMIT`;
 any error rolls back everything (tested). WAL mode lets the online loop read while the
 offline trainer writes.
+
+## Similarity search with the R*Tree (Phase 3, D15, E13)
+Code: `src/qws/db/similarity.py`. Tests: `tests/test_similarity.py` (answers equal brute force).
+- **Why a projection:** an R*Tree indexes few dimensions well; features have 16. We store the PCA-3 projection
+  y = V z of the standardised features z (V has orthonormal rows). PCA-3 keeps about 87% of the variance (E13).
+- **Lemma (no false negatives).** For an orthogonal projection, ||V z - V z'|| <= ||z - z'||. So every stored graph
+  with full distance <= r lies in the cube of half-width r around V z. Proof: Pythagoras (the dropped components only
+  add a non-negative term). The cube filter therefore never misses a true neighbour; exact distances are computed
+  on the candidates only.
+- **Algorithm:** grow r until the cube holds k candidates; if the k-th exact distance d_k <= r, stop; otherwise set
+  r = d_k and query once more (then it always stops). Result = exact k-NN.
+- **float32:** SQLite stores R*Tree coordinates as float32 and rounds box bounds outward, so the filter stays safe.
+- **Query plan** (`results/rtree_bench.txt`): `SCAN r VIRTUAL TABLE INDEX 2:D1B0D3B2D5B4` (the R*Tree answers the six
+  range constraints) followed by `SEARCH c USING COVERING INDEX sqlite_autoindex_param_cache_1 (graph_id=? AND p=?)`.
+  The full scan without the index is `SCAN graph_feature`.
+- **Limitation (honest):** the speed-up (2-15x, E13) is versus reading every vector from disk; versus vectors already
+  in RAM it is only faster at N = 100000 (10.8 vs 14.5 ms) and slower for small N. For the thesis data (about 1000 graphs) the in-memory cache is
+  enough; the index matters when the cache keeps growing (C3) and does not fit in memory, or many processes share it.

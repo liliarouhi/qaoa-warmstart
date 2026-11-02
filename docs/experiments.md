@@ -61,3 +61,14 @@ Notes:
 3. At p=1 the margin left for ML is small (fixed is within 1%); the interesting range is p=2,3 and larger n.
 4. Newton gives the best start but its Hessian is expensive at this size. Idea (not implemented): by Lemma D0 the
    Hessian also changes only at second order, so the previous snapshot's Hessian could be reused (cost 1 gradient).
+
+## E6 — First learned start: ResidualRidge vs fixed (pilot data, 2026-11-02)
+Config `pilot.yaml`; `python experiments/eval_ridge.py --config experiments/configs/pilot.yaml --p 1 2`.
+Model: `qws.models.ResidualRidge` (NumPy closed form, 16 features + 1/strength_mean, alpha by 5-fold CV).
+Result (36 test graphs; SMALL, not evidence):
+- p=2: Ridge better everywhere. All graphs: angle error 0.32 -> 0.14, F(start)/F_best 0.965 -> 0.993,
+  ETT median 40 -> 8 (mean 38 -> 15.6). 3-regular: 0.949 -> 0.998.
+- p=1: no gain overall (0.992 vs 0.990); worse on DVRP (0.996 -> 0.962). Reason found: DVRP labels at p=1 jump
+  between two branches (gamma ~2.3 at n=8-10, ~1.0 at larger n): a jump, which a linear model cannot fit.
+Notes: matches E5 (p=1 leaves little room). Next: same on the 1008-graph dataset; then random forest
+(can fit jumps) and the Newton base for stream snapshots.

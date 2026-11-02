@@ -134,3 +134,19 @@ Findings: the cache is as good as the forest when it holds similar graphs (strea
 and worse when it does not (pilot DVRP at p=2: only 29 DVRP graphs). 1-NN alone can pick a neighbour on another
 optimum (stream p=1 worst start 0.69); best-of-3 fixes this for 3 evaluations. Next: the cache grows during the stream
 (amortised cost, C3) and the SQLite R*Tree implementation.
+
+## E11 — Optimal-angle shift after one new order vs graph size n (2026-11-02)
+`python experiments/shift_vs_n.py --p 1 --sizes 6 8 10 12 14 16 18 --samples 20` and `--p 2 --sizes 6 ... 16 --samples 12`.
+Uniform customers in the unit square, fixed weight scale, shift = distance from theta* (old) to the optimum of the new
+graph reached from theta* (local tracking). Medians:
+| n | 6 | 8 | 10 | 12 | 14 | 16 | 18 |
+|---|---|---|---|---|---|---|---|
+| p=1 shift | 0.092 | 0.062 | 0.037 | 0.023 | 0.025 | 0.020 | 0.011 |
+| p=1 relative gamma shift | 0.097 | 0.074 | 0.051 | 0.038 | 0.049 | 0.040 | 0.025 |
+| p=2 shift | 0.458 | 0.232 | 0.122 | 0.110 | 0.055 | 0.024 | — |
+Log-log slopes vs n: p=1 absolute -1.80, relative gamma -1.07; p=2 absolute -2.77, relative gamma -2.04.
+Reading: the shift is almost all in gamma (beta barely moves). gamma* itself shrinks ~1/n (the weight per vertex grows
+~n with a fixed scale), so the natural quantity is the RELATIVE shift, which decays like 1/n at p=1 (conjecture
+supported) and at least as fast at p=2. Heuristic: a new vertex adds ~n of the ~n^2/2 total weight, a relative
+perturbation ~1/n. NOT a proof; small n range (6-18), 12-20 samples, p=2 noisy. Next: a proof attempt for p=1 using the
+weighted closed form, and more samples at p=2.

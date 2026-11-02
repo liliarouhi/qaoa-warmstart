@@ -107,3 +107,28 @@ Findings:
    (8 random starts): check with more starts before claiming.
 3. p=2: temporal+ML (previous angles + learned correction) has the lowest mean cost.
 No single winner; the combination of theory-based step and ML is the best overall. Small n only: repeat on main data.
+
+## E9 — Are the stream 'jumps' real? (2026-11-02)
+`python experiments/check_jumps.py --config experiments/configs/stream.yaml --p 1 2` (40 starts + cross starts).
+- Not noise from too few starts: 11/11 (p=1) and 18/19 (p=2) jumps remain; only 1 label improved.
+- But most are NEAR-DEGENERATE: optimising from the previous angles reaches an optimum of the same value
+  (value gap median 0.0000; max 0.145 at p=1, 0.0006 at p=2). So the landscape has two (or more) almost equally
+  good optima and 'best found' picks one of them arbitrarily from snapshot to snapshot.
+Consequences: (1) for warm starting, most jumps are harmless (temporal reaches an equally good optimum); only a few
+(p=1) are real losses. (2) For learning, the arbitrary choice is label noise: labels should pick, among optima within
+a small value tolerance, the one closest to a reference (e.g. the previous label or the fixed angles) -> 'consistent
+labels'. Proposed as a design decision, not implemented yet.
+
+## E10 — Similarity cache vs models, cold start (2026-11-02)
+`python experiments/eval_models.py --config experiments/configs/{pilot,stream}.yaml --p 1 2`. Cache = all training
+labels; cache_1nn (cost 0), cache_best3 (evaluate 3 nearest, cost 3). Mean total cost (start + ETT to 0.99):
+| data, p | fixed | ridge | forest | cache_1nn | cache_best3 |
+|---|---|---|---|---|---|
+| pilot (all families), p=1 | 7.7 | 10.4 | 9.0 | **5.7** | 7.6 |
+| pilot, p=2 | 38.0 | 15.6 | **12.2** | 23.1 | 24.3 |
+| stream (DVRP), p=1 | 99.8 | 98.4 | 95.6 | 151.4 | **95.4** |
+| stream (DVRP), p=2 | 86.4 | 21.9 | 22.2 | **20.3** | 20.4 |
+Findings: the cache is as good as the forest when it holds similar graphs (stream data, 199+ DVRP training graphs)
+and worse when it does not (pilot DVRP at p=2: only 29 DVRP graphs). 1-NN alone can pick a neighbour on another
+optimum (stream p=1 worst start 0.69); best-of-3 fixes this for 3 evaluations. Next: the cache grows during the stream
+(amortised cost, C3) and the SQLite R*Tree implementation.

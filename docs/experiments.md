@@ -111,13 +111,15 @@ No single winner; the combination of theory-based step and ML is the best overal
 ## E9 — Are the stream 'jumps' real? (2026-11-02)
 `python experiments/check_jumps.py --config experiments/configs/stream.yaml --p 1 2` (40 starts + cross starts).
 - Not noise from too few starts: 11/11 (p=1) and 18/19 (p=2) jumps remain; only 1 label improved.
-- But most are NEAR-DEGENERATE: optimising from the previous angles reaches an optimum of the same value
-  (value gap median 0.0000; max 0.145 at p=1, 0.0006 at p=2). So the landscape has two (or more) almost equally
-  good optima and 'best found' picks one of them arbitrarily from snapshot to snapshot.
-Consequences: (1) for warm starting, most jumps are harmless (temporal reaches an equally good optimum); only a few
-(p=1) are real losses. (2) For learning, the arbitrary choice is label noise: labels should pick, among optima within
-a small value tolerance, the one closest to a reference (e.g. the previous label or the fixed angles) -> 'consistent
-labels'. Proposed as a design decision, not implemented yet.
+- First reading (WRONG, corrected the same day): "two near-equal optima". The value gap was ~0 because optimising
+  from the previous angles reaches THE SAME optimum as the new label (checked pair by pair: identical angles,
+  relative gap < 1e-9). So most jumps are LARGE BUT CONTINUOUS SHIFTS of a single optimum, mostly at n = 8-9 where
+  one order is a big change (e.g. gamma 2.15 -> 2.99 after a removal). Only a few are real switches to another
+  optimum (1 at p=1 with 14.5% value gap, 1 at p=2 with 0.06%).
+Consequences: (1) the local theory (Theorem C, Prop. D) is right in kind but the shift is not small for very small n:
+shift size should be studied versus n (connects to the conjecture ||shift|| = O(1/n)). (2) Consistent labels (D14),
+introduced because of the first reading, change nothing on these data (E8/E10 identical after relabelling); they are
+kept because they are harmless (value cost <= 0.1%) and guard against real ties.
 
 ## E10 — Similarity cache vs models, cold start (2026-11-02)
 `python experiments/eval_models.py --config experiments/configs/{pilot,stream}.yaml --p 1 2`. Cache = all training

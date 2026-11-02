@@ -23,3 +23,5 @@ labels:                       # best-known angles = label (multi-start, 'best fo
   p: [1, 2, 3]
   n_starts: 10                # random starts; plus INTERP from p-1 and the previous snapshot's label
   optimizer: L-BFGS-B
+  consistent: true            # D14: among optima within tol of the best, the one closest to the reference angles
+  tol: 0.001

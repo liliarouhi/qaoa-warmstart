@@ -78,3 +78,10 @@ duplicates, splitting inside a stream would leak). Label = best of 10 random L-B
 previous snapshot's label ('best found', not proven optimal). Schema v2 (`PRAGMA user_version=2`): `graph.split`,
 `stream` table, `snapshot.stream_id/seq/event/prev_ok`, `qaoa_run.ngev`, more `init_method` values.
 Config: `experiments/configs/main.yaml`. Status: implemented 2026-11-02, labelling to run on the M2.
+
+**D14 — Consistent labels.** Among all local optima found for a graph whose value is within 0.1% (`labels.tol`) of the
+best value found, the label is the one closest (canonical angles, Euclidean) to fixed reference angles; the reference
+is the median of 'best found' labels of 30 random training graphs, stored in `data/<name>_reference.json`.
+*Why:* guards against arbitrary choices between near-equal optima (label noise). Note: introduced after a first
+reading of E9 that was later corrected; on the pilot and stream data it changes no result (E9). *Cost:* at most 0.1% of the objective value per label. *Alternative:* plain 'best found'
+(`labels.consistent: false`), kept for the ablation. Chosen by the author on 2026-11-02.

@@ -76,11 +76,14 @@ def main() -> None:
         N = len(snaps)
         marks = [m for m in (25, 50, 100, 200, N) if m <= N]
         out += [f"## p = {p}", "", f"{N} events in {len({s[2] for s in snaps})} streams", "",
-                "| method | " + " | ".join(f"mean cost, events 1-{m}" for m in marks) + " | last 50 events |",
-                "|---|" + "---|" * (len(marks) + 1)]
-        for m in METHODS:
+                "| method | " + " | ".join(f"mean cost, events 1-{m}" for m in marks) + " | last 50 events |"
+                " median (IQR), all events | failures (budget reached) |",
+                "|---|" + "---|" * (len(marks) + 3)]
+        for m in METHODS:  # medians as well: a few budget failures (cost = budget) dominate the means at p=1
             c = np.array(costs[m])
-            out.append(f"| {m} | " + " | ".join(f"{c[:k].mean():.1f}" for k in marks) + f" | {c[-50:].mean():.1f} |")
+            q1, med, q3 = np.percentile(c, [25, 50, 75])
+            out.append(f"| {m} | " + " | ".join(f"{c[:k].mean():.1f}" for k in marks) + f" | {c[-50:].mean():.1f} |"
+                       f" {med:.0f} ({q1:.0f}-{q3:.0f}) | {int(np.sum(c >= 3000))} |")
         rc, rf = running_mean(costs["cache"]), running_mean(costs["fixed"])
         better = np.where(rc < rf)[0]
         out += ["", f"break-even (first event where the running mean cost of the cache is below fixed): "

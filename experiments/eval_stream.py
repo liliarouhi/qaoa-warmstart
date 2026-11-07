@@ -10,6 +10,7 @@ For every test snapshot whose previous snapshot is the state just before it (pre
                  pairs (inputs: features now, feature change, add/remove)
   newton         Newton step, fresh Hessian (Proposition D)                    (1 + 4p) gradients
   newton_reuseH  Newton step with a Hessian recomputed every R events         1 gradient (+ Hessian when refreshed)
+  sureshbabu     Sureshbabu et al. 2024 rule, p=1 only (qws/baselines.py)          start cost 0
   select         evaluate F at newton_reuseH and forest, start from the better  newton_reuseH cost + 2 evaluations
                  (guards against 'jumps', where the best optimum switches to another branch)
 Metric: total cost = start cost + ETT (circuit-equivalents to reach tau * F_best, default tau = 0.999,
@@ -20,6 +21,7 @@ the optimiser's result for that snapshot; the two are very close.
 from __future__ import annotations
 
 import argparse
+import csv
 import os
 
 import numpy as np
@@ -27,6 +29,7 @@ from common import ROOT, load_config
 from eval_ridge import features_of
 from pilot_fixed import labels, run_start
 
+from qws.baselines import sureshbabu_init
 from qws.db import repository as repo
 from qws.models import ResidualForest
 from qws.perturb import hessian, newton_warm_start, newton_with_hessian
@@ -61,6 +64,7 @@ def main() -> None:
     a = ap.parse_args()
     cfg = load_config(a.config)
     con = repo.connect(cfg["db_path"])
+    raw = []
     out = [f"# Warm starts along the order stream (config {cfg['name']}, Hessian refresh every {REFRESH} events, tau = {a.tau})", ""]
     for p in a.p:
         train, test = labels(con, p, "train"), labels(con, p, "test")
@@ -95,16 +99,24 @@ def main() -> None:
             cand = [starts["newton_reuseH"], starts["forest"]]
             vals = [sim.expectation(x[:p], x[p:]) for x, _ in cand]
             starts["select"] = (cand[int(np.argmax(vals))][0], starts["newton_reuseH"][1] + 2)
+            if p == 1:  # non-learned baseline for weighted graphs (Sureshbabu et al. 2024); p>=2 needs a table
+                sg, sbt = sureshbabu_init(sim.graph, 1)
+                starts["sureshbabu"] = (join_params(sg, sbt), 0)
             jumps += float(np.linalg.norm(cur["theta"] - th_prev) > 0.5)
             for name, (x, c) in starts.items():
                 r = run_start(sim, (x[:p], x[p:]), cur["f_best"], extra_cost=c, tau=a.tau)
                 r["angle_err"] = float(np.linalg.norm(x - cur["theta"]))
                 res.setdefault(name, []).append(r)
+                raw.append({"graph_id": cur["gid"], "family": cur["family"], "n": cur["n"], "p": p, "method": name,
+                            "start": r["start"], "ett": r["ett"], "cost": r["cost"], "ok": int(r["ok"]),
+                            "angle_err": r["angle_err"]})
         out += [f"## p = {p}", "", f"train pairs {len(tr_pairs)}, test pairs {len(te_pairs)}; Newton status {statuses}; "
                 f"jumps (best angles moved > 0.5 rad between consecutive snapshots): {int(jumps)}", "",
                 "| start | angle error median | F(start)/F_best median | min | ETT mean | start cost mean | TOTAL cost median | TOTAL cost mean | success |",
                 "|---|---|---|---|---|---|---|---|---|"]
-        for name in ["fixed", "forest", "temporal", "temporal+ML", "newton", "newton_reuseH", "select"]:
+        for name in ["fixed", "sureshbabu", "forest", "temporal", "temporal+ML", "newton", "newton_reuseH", "select"]:
+            if name not in res:
+                continue
             rs = res[name]
             s = np.array([r["start"] for r in rs])
             ett, tot = np.mean([r["ett"] for r in rs]), np.mean([r["cost"] for r in rs])
@@ -116,6 +128,10 @@ def main() -> None:
     print(text)
     os.makedirs(ROOT / "results", exist_ok=True)
     (ROOT / "results" / f"stream_{cfg['name']}.md").write_text(text, encoding="utf-8")
+    with open(ROOT / "results" / f"raw_stream_{cfg['name']}.csv", "w", newline="") as f:  # for stats_report.py
+        w = csv.DictWriter(f, fieldnames=["graph_id", "family", "n", "p", "method", "start", "ett", "cost", "ok", "angle_err"])
+        w.writeheader()
+        w.writerows(raw)
 
 
 if __name__ == "__main__":

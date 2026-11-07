@@ -200,3 +200,15 @@ gamma*beta* = const; its weak Hessian direction is ~log gamma. Theorem C's isotr
 (8 graphs per n, n = 16..128), so it cannot show the 1/n decay; Newton step (Prop. D) matches the true shift to ~1%.
 Proof status: docs/proofs/conjecture_E.md (Lemma E1 proven, E2 formal, E3 proven given E2, main claim open).
 Run on the cloud machine; deterministic given the seed, so the Mac gives the same numbers.
+
+## E15 — Final pipeline dry run on the pilot data (2026-11-07)
+`eval_final.py`, `eval_stream.py`, `stats_report.py` with `pilot.yaml` (36 test graphs, tau 0.99; SMALL, pipeline check
+only, not evidence). Observations worth checking on the main data:
+- Sureshbabu (p=1) starts at F/F_best 0.993 overall but 0.977 on DVRP (fixed 0.996, cache 0.999): the weighted rule
+  transfers from sparse regular graphs and fits the dense DVRP graphs less well. On the stream it costs 24 vs fixed 20.
+- Goemans-Williamson on pilot DVRP graphs (n = 8-14): SDP = MaxCut and GW expected cut = MaxCut (median 1.000), i.e.
+  the classical relaxation is tight on these small clustered instances. Spot check n = 14 (15 graphs): GW expected 0.978
+  median. QAOA F_best/MaxCut: 0.73 (p=1), 0.86 (p=2). Must be stated honestly in the thesis: at these sizes the
+  contribution is the warm-start cost, not beating classical solvers.
+- E12 rerun with medians (pilot, p=1): cache 7 (7-15) vs fixed 20 (16-24) vs random 32; means are dominated by 2-4
+  budget failures per method.

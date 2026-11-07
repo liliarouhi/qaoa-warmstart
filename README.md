@@ -39,7 +39,7 @@ streamlit run app/qaoa_lab.py
 ```
 The logic lives in `src/qws/demo.py` (tested in `tests/test_demo.py`); `app/` only draws it.
 
-## What is in the repository (v0.3.0, Phase 2)
+## What is in the repository (v0.4.0, Phase 3)
 | Module | Content |
 |---|---|
 | `qws.graphs` | weighted graphs, ER / regular / Euclidean generators, brute-force Max-Cut, QUBO to Max-Cut reduction |
@@ -75,6 +75,17 @@ python experiments/label.py    --config experiments/configs/main.yaml --p 1 --ma
 python experiments/label.py    --config experiments/configs/main.yaml --p 1 2 3          # overnight; Ctrl+C safe, resumes
 python experiments/pilot_fixed.py --config experiments/configs/pilot.yaml --p 1 2     # small pilot, minutes
 ```
+
+
+## Final results pipeline (run when the main dataset is labelled)
+
+```bash
+python experiments/eval_final.py   --config experiments/configs/main.yaml --p 1 2   # cold starts + GW, raw CSV
+python experiments/eval_stream.py  --config experiments/configs/main.yaml --p 1 2   # along the order stream, raw CSV
+python experiments/stats_report.py --config experiments/configs/main.yaml          # medians, Wilcoxon + Holm, figures
+```
+`results/report_main.md` holds every table of Chapter 6; the numbers in the thesis come from there.
+Baselines: random, fixed, Sureshbabu et al. 2024 (`qws.baselines`), Goemans-Williamson (classical reference).
 
 ## Conventions
 $$|\boldsymbol\gamma,\boldsymbol\beta\rangle=\prod_{l=1}^{p} e^{-i\beta_l B}e^{-i\gamma_l C}|+\rangle^{\otimes n},\qquad F_p=\langle C\rangle\ \text{(maximised)}$$

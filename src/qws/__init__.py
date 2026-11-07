@@ -1,3 +1,3 @@
 """qws: learned and cached warm-starts for QAOA on weighted Max-Cut."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

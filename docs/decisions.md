@@ -94,3 +94,17 @@ approximate-NN error to discuss) with a standard SQLite index. *Alternatives:* a
 high dimension but can miss neighbours; more R*Tree dimensions keep more variance but R*Trees degrade above about
 5-6 dimensions. *Limitation:* gains only over a disk scan, not over vectors in RAM (E13). `migrate_v3` adds the table
 to an existing v2 database without touching labels. Status: implemented 2026-11-02.
+
+**D16 — Statistics for Chapter 6.** Median and IQR of total cost (skewed, censored at the budget), paired Wilcoxon
+signed-rank test against a reference method on the same graphs, Holm-Bonferroni correction over methods,
+matched-pairs rank-biserial effect size, 95% bootstrap CI of the median paired difference (`qws.stats`,
+`experiments/stats_report.py`). Raw per-graph results are written as CSV by eval_final.py and eval_stream.py, so every
+table can be regenerated. *Alternative:* t-tests on means (rejected: a few budget failures dominate means, E12).
+Status: implemented 2026-11-07.
+
+**D17 — Two more baselines.** (1) Goemans-Williamson as the classical reference (SDP by Burer-Monteiro low rank, no SDP
+library; exact expected cut of hyperplane rounding). (2) Sureshbabu et al. 2024 parameter rule for weighted graphs
+(RMS weight normalisation + transferred angles). Convention checked: on unweighted 3-regular graphs the p=1 rule gives
+exactly the optimum arctan(1/sqrt(2)), pi/8. p>=2 needs Basso et al. 2022 Table 4 values, which could not be verified
+here: add them to the config (`baselines: sureshbabu: p2: {gamma_inf: [...], beta_inf: [...]}`) after checking the
+paper. Status: implemented 2026-11-07 (`qws.baselines`).

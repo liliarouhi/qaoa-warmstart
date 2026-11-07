@@ -26,9 +26,15 @@ ORDER = ["random", "fixed", "sureshbabu", "ridge", "forest", "cache", "temporal"
          "newton_reuseH", "select"]
 
 
-def read(path):
+def read(path, key=("graph_id", "p", "method")):
+    """Rows of a raw CSV, duplicates removed (a resumed or doubled run can write the same row twice;
+    rows are deterministic, so the copies are identical and the last one is kept)."""
     with open(path, newline="") as f:
-        return list(csv.DictReader(f))
+        rows = list(csv.DictReader(f))
+    uniq = {tuple(r.get(k) for k in key): r for r in rows}
+    if len(uniq) < len(rows):
+        print(f"{path.name}: {len(rows) - len(uniq)} duplicate rows ignored")
+    return list(uniq.values())
 
 
 def paired(rows, p, family):
@@ -105,7 +111,7 @@ def main() -> None:
                         out += [f"Figure: `{fig.relative_to(ROOT)}`", ""]
     gw = res / f"gw_{cfg['name']}.csv"
     if gw.exists():
-        rows = read(gw)
+        rows = read(gw, key=("graph_id", "p"))
         out += ["## QAOA vs Goemans-Williamson (approximation ratio = value / MaxCut)", "",
                 "| p | family | graphs | QAOA F_best/MaxCut median | GW expected median | GW best-of-100 median | SDP/MaxCut median |",
                 "|---|---|---|---|---|---|---|"]

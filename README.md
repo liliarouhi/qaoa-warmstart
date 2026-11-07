@@ -21,6 +21,24 @@ good starting point saves, and which source of starting points is best:
 Max-Cut is used as the **clustering stage** of a cluster-first, route-second DVRP pipeline
 (not as a full VRP encoding). See [docs/decisions.md](docs/decisions.md).
 
+
+## Interactive app
+
+A Streamlit app in `app/` shows what the system does, live, on the real code in `src/qws`:
+
+1. orders on the map and the two groups chosen by Max-Cut (exact),
+2. the QAOA landscape F(gamma, beta) at p = 1 with the best and the fixed angles,
+3. a stream of new orders: five warm-start methods (random, fixed, previous, Newton, cache) race to the optimum,
+   with the cumulative cost along the stream,
+4. the similarity cache inside SQLite (R*Tree, exact k-NN, EXPLAIN QUERY PLAN),
+5. the theory: how far the optimal angles move after one new order, versus n.
+
+```bash
+pip install -e ".[app]"
+streamlit run app/qaoa_lab.py
+```
+The logic lives in `src/qws/demo.py` (tested in `tests/test_demo.py`); `app/` only draws it.
+
 ## What is in the repository (v0.3.0, Phase 2)
 | Module | Content |
 |---|---|

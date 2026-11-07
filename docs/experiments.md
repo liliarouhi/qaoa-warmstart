@@ -181,6 +181,14 @@ Query plan: `SCAN r VIRTUAL TABLE INDEX 2:D1B0D3B2D5B4` + `SEARCH c USING COVERI
 scan by 2-15x; it only beats vectors already in RAM at N = 100000. For the thesis data (~1200 graphs) the in-memory
 cache is enough; the index matters for a cache that keeps growing (C3). Times measured on the cloud machine; rerun on
 the M2 for the thesis table. Average 4.4 radius rounds per query: a better first radius would cut time further.
+**Mac M2 rerun (2026-11-07, Python 3.10.12) — use these in the thesis:**
+| N | SQL full scan | in RAM (NumPy) | R*Tree exact k-NN | speed-up vs scan |
+|---|---|---|---|---|
+| 1 000 | 0.51 | 0.068 | 0.24 | 2.1x |
+| 10 000 | 5.25 | 0.70 | 0.95 | 5.5x |
+| 100 000 | 62.8 | 8.26 | 3.45 | 18.2x |
+Same candidate shares (11% / 6.6% / 3.5%), 0 wrong answers, same query plan. On the M2 the R*Tree beats vectors in RAM
+at N = 100 000 by 2.4x (3.45 vs 8.26 ms).
 
 ## E14 — Angle shift at p=1 for large n via the weighted closed form (2026-11-02)
 `python experiments/shift_large_n.py --sizes 16 24 32 48 64 96 --samples 40` (Lemma E1 closed form instead of the

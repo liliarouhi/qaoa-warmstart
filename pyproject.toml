@@ -18,7 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 quantum = ["pennylane>=0.38"]          # used to validate the NumPy simulator
-ml = ["torch>=2.2", "scikit-learn>=1.4"]  # Phase 3 models
+ml = ["torch>=2.2", "scikit-learn>=1.4", "threadpoolctl>=3.1"]  # Phase 3 models
 dev = ["pytest>=8", "pyyaml>=6", "matplotlib>=3.8"]
 app = ["streamlit>=1.40", "plotly>=5.22", "pandas>=2.0", "scikit-learn>=1.4"]  # interactive demo (app/)
 

@@ -16,5 +16,3 @@ labels:
   p: [1, 2]
   n_starts: 8
   optimizer: L-BFGS-B
-  consistent: true            # D14: among optima within tol of the best, the one closest to the reference angles
-  tol: 0.001

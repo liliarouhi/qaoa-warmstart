@@ -147,7 +147,7 @@ graph reached from theta* (local tracking). Medians:
 Log-log slopes vs n: p=1 absolute -1.80, relative gamma -1.07; p=2 absolute -2.77, relative gamma -2.04.
 Reading: the shift is almost all in gamma (beta barely moves). gamma* itself shrinks ~1/n (the weight per vertex grows
 ~n with a fixed scale), so the natural quantity is the RELATIVE shift, which decays like 1/n at p=1 (conjecture
-supported) and at least as fast at p=2. Heuristic: a new vertex adds ~n of the ~n^2/2 total weight, a relative
+supported) and at least as fast at p=2. [Later correction, E14: gamma* itself does NOT scale like 1/n; the product n gamma* beta* is ~constant.] Heuristic: a new vertex adds ~n of the ~n^2/2 total weight, a relative
 perturbation ~1/n. NOT a proof; small n range (6-18), 12-20 samples, p=2 noisy. Next: a proof attempt for p=1 using the
 weighted closed form, and more samples at p=2.
 
@@ -181,3 +181,22 @@ Query plan: `SCAN r VIRTUAL TABLE INDEX 2:D1B0D3B2D5B4` + `SEARCH c USING COVERI
 scan by 2-15x; it only beats vectors already in RAM at N = 100000. For the thesis data (~1200 graphs) the in-memory
 cache is enough; the index matters for a cache that keeps growing (C3). Times measured on the cloud machine; rerun on
 the M2 for the thesis table. Average 4.4 radius rounds per query: a better first radius would cut time further.
+
+## E14 — Angle shift at p=1 for large n via the weighted closed form (2026-11-02)
+`python experiments/shift_large_n.py --sizes 16 24 32 48 64 96 --samples 40` (Lemma E1 closed form instead of the
+2^n simulator; same setting as E11: uniform points, fixed scale, one new point, local tracking). Medians:
+| n | rel. gamma shift (IQR) | beta shift | n gamma* | beta* | n gamma* beta* |
+|---|---|---|---|---|---|
+| 16 | 0.0334 (0.0246-0.0473) | 0.00357 | 7.85 | 0.218 | 1.71 |
+| 24 | 0.0209 (0.0151-0.0322) | 0.00260 | 8.98 | 0.194 | 1.76 |
+| 32 | 0.0173 (0.0120-0.0267) | 0.00164 | 9.78 | 0.178 | 1.74 |
+| 48 | 0.0121 (0.0082-0.0162) | 0.00109 | 11.67 | 0.156 | 1.82 |
+| 64 | 0.0078 (0.0060-0.0103) | 0.00073 | 12.93 | 0.141 | 1.83 |
+| 96 | 0.0056 (0.0044-0.0072) | 0.00042 | 14.80 | 0.123 | 1.82 |
+Log-log slopes: relative gamma shift **-0.99**, beta shift -1.21 (n = 16..96). Supports Conjecture E (O(1/n)).
+CORRECTION to E11's heuristic: gamma* does not shrink like 1/n (n gamma* grows); instead the PRODUCT n gamma* beta*
+is nearly constant (~1.8), as Proposition E2 predicts (leading-order limit 1.62). The optimum sits in a flat valley
+gamma*beta* = const; its weak Hessian direction is ~log gamma. Theorem C's isotropic bound eps/mu stays ~0.3 for all n
+(8 graphs per n, n = 16..128), so it cannot show the 1/n decay; Newton step (Prop. D) matches the true shift to ~1%.
+Proof status: docs/proofs/conjecture_E.md (Lemma E1 proven, E2 formal, E3 proven given E2, main claim open).
+Run on the cloud machine; deterministic given the seed, so the Mac gives the same numbers.

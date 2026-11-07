@@ -56,3 +56,32 @@ def optimize_p1(g: WeightedGraph, n_grid: int = 64) -> tuple[float, float, float
     i, j = np.unravel_index(np.argmax(vals), vals.shape)
     res = minimize(lambda t: -expectation_p1(stats, t[0], t[1]), x0=[gs[i], bs[j]], method="L-BFGS-B")
     return float(res.x[0]), float(res.x[1]), float(-res.fun)
+
+
+# ------------------------------------------------------------------ weighted graphs (Lemma E1)
+
+def expectation_p1_weighted(W: np.ndarray, gamma: float, beta: float) -> float:
+    """p = 1 expectation for a WEIGHTED graph from its adjacency matrix W (Lemma E1, docs/proofs/conjecture_E.md).
+
+    <C_uv> = w/2 + w/4 sin(4b) sin(g w) [prod_k cos(g w_uk) + prod_k cos(g w_vk)]
+                 - w/4 sin(2b)^2 [prod_k cos(g (w_uk - w_vk)) - prod_k cos(g (w_uk + w_vk))],  k != u, v.
+    Missing edges have w = 0 and contribute factor 1. Cost O(n^3) per call (O(n^2) pairs x n), no 2^n.
+    """
+    W = np.asarray(W, float)
+    n = len(W)
+    iu, ju = np.triu_indices(n, 1)
+    keep = W[iu, ju] != 0
+    iu, ju = iu[keep], ju[keep]
+    w = W[iu, ju]
+    rows = np.arange(len(iu))
+    mask = np.ones((len(iu), n), bool)
+    mask[rows, iu] = False
+    mask[rows, ju] = False
+    A, B = W[iu], W[ju]
+    pu = np.prod(np.where(mask, np.cos(gamma * A), 1.0), axis=1)
+    pv = np.prod(np.where(mask, np.cos(gamma * B), 1.0), axis=1)
+    dm = np.prod(np.where(mask, np.cos(gamma * (A - B)), 1.0), axis=1)
+    dp = np.prod(np.where(mask, np.cos(gamma * (A + B)), 1.0), axis=1)
+    t1 = 0.25 * w * np.sin(4 * beta) * np.sin(gamma * w) * (pu + pv)
+    t2 = 0.25 * w * np.sin(2 * beta) ** 2 * (dm - dp)
+    return float(np.sum(0.5 * w + t1 - t2))

@@ -114,3 +114,15 @@ def test_S4_odd_degree_symmetry(rng):
     sim4 = QAOASimulator(random_regular(8, 4, rng))
     g, b = np.array([0.4]), np.array([0.3])
     assert not np.isclose(sim4.expectation(g + np.pi, -b), sim4.expectation(g, b))
+
+
+def test_weighted_p1_closed_form_matches_simulator(rng):
+    """Lemma E1: weighted p=1 closed form equals the state-vector simulator (complete and sparse graphs)."""
+    from qws.analytic_p1 import expectation_p1_weighted
+    from qws.dvrp.stream import euclidean_graph_fixed_scale
+    from qws.graphs import erdos_renyi
+    from qws.simulator import QAOASimulator
+    for g in (euclidean_graph_fixed_scale(rng.random((7, 2))), erdos_renyi(8, 0.5, rng)):
+        sim = QAOASimulator(g)
+        for gm, bt in rng.uniform(-2, 2, size=(4, 2)):
+            assert abs(sim.expectation([gm], [bt]) - expectation_p1_weighted(g.adjacency(), gm, bt)) < 1e-10
